@@ -4,29 +4,48 @@ uses
   System.SysUtils,
   System.Classes,
   System.Diagnostics,
+  System.Math,
   Windows;
 
 type
   TPodpiecia = class
   private
-    fLicznikAkcji, fAkcje: array [0 .. 7] of byte;
+    fLicznikAkcji: array [0 .. 7] of integer;
+    fAkcje: array [0 .. 7] of byte;
     fPomiarCzasu: AnsiString;
+    fMojNumerGracza: integer;
+    fResetujAPM: boolean;
+    fPoczatekGry: boolean;
+    fCzasGrySekundy: single;
     procedure JmpPatch(const od, skokDo: cardinal);
     procedure InstalacjaPodpiec;
     procedure CofniecieInstalacjiPodpiec;
     class procedure Podpiecie_Wyswietlanie(instance: TPodpiecia); static;
     class procedure Podpiecie_KomendyGra(instance: TPodpiecia); static;
     class procedure Podpiecie_Akcje(instance: TPodpiecia); static;
+    // ****
     procedure Wyswietlanie;
+    function CzasGry(const czasGrySekundy: single): AnsiString;
+    function Godzina: AnsiString;
+    //
     function KomendyGra(const wprowadzonyTekst: PAnsiChar): boolean;
+    // ****
     procedure Akcje(const numerGracza, kodAkcji: integer);
-    procedure BW_OdtwarzajDzwiek(const numer: integer);
-    procedure BW_Tekst(const tekst: PAnsiChar);
-    procedure BW_TekstXY(const x, y: integer; const tekst: PAnsiChar);
+    function APM(const numerGracza: integer): AnsiString;
+    procedure ResetujAPM(const resetuj: boolean);
+    //
+    procedure BW_OdtwarzajDzwiek(const numer: integer); stdcall;
+    procedure BW_Tekst(const tekst: PAnsiChar); stdcall;
+    procedure BW_TekstXY(const x, y: integer; const tekst: PAnsiChar); stdcall;
     procedure BW_RozmiarCzcionki(const rozmiarCzcionki: cardinal); stdcall;
     procedure BW_Piksel(const x, y: integer; const kolor: byte); stdcall;
-    procedure BW_Boks(const x, y, s, w: integer; const kolor: byte); stdcall;
-    procedure BW_PrzezroczystyBoks(const x, y, s, w: integer; const kolor: byte); stdcall;
+    procedure BW_Boks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
+    procedure BW_PrzezroczystyBoks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
+  public
+    property pMojNumerGracza: integer read fMojNumerGracza;
+    property pResetujAPM: boolean write ResetujAPM;
+    property pPoczatekGry: boolean write fPoczatekGry;
+    property pCzasGrySekundy: single read fCzasGrySekundy;
   end;
 
   TGlownyWatek = class(TThread)
@@ -34,6 +53,7 @@ type
   protected
     procedure Execute; override;
   public
+    fResetujZmienne: boolean;
     constructor Create(wstrzymanie: boolean);
   end;
 
@@ -107,29 +127,62 @@ var
   stop: Int64;
   delta: extended;
 begin
-  QueryPerformanceFrequency(czestoliwosc);
-  QueryPerformanceCounter(start);
-  pierwotnyRozmiarCzcionki := cardinal(Pointer($006D5DDC)^);
-  BW_RozmiarCzcionki($00000000);
-  BW_RozmiarCzcionki($006CE0F8);
-  // wielka: $006CE0FC;
-  // normalna: $006CE0F8;
-  // mala: $006CE0F4;
-  // *****************************************************cały kod tutaj:
-  BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
-  BW_TekstXY(4, 2, PAnsiChar(#4'Licznik Akcji: ' + AnsiString(IntToStr(fLicznikAkcji[integer(Pointer($00512684)^)]))));
-  BW_TekstXY(4, 13, PAnsiChar(fPomiarCzasu));
-  // *****************************************************
-  BW_RozmiarCzcionki($00000000);
-  asm                               // przywrócenie rozmiaru czcionki
-    pushad
-    mov   ecx, pierwotnyRozmiarCzcionki
-    call  dword ptr [adres]
-    popad
+  if Gra then
+  begin
+    QueryPerformanceFrequency(czestoliwosc);
+    QueryPerformanceCounter(start);
+    if fPoczatekGry then
+    begin
+      BW_Tekst(PAnsiChar(#4'<mca64Launcher:> ' + #7'Wersja: ' + #3'1.8.6.4'));
+      BW_Tekst(PAnsiChar(#4'<ShittyPlugin:> ' + #7'Wersja: ' + #3'2.0'));
+      fMojNumerGracza := integer(Pointer($00512684)^);
+      fResetujAPM := True;
+      glownyWatek.fResetujZmienne := True;
+      fPoczatekGry := False;
+    end;
+    pierwotnyRozmiarCzcionki := cardinal(Pointer($006D5DDC)^);
+    BW_RozmiarCzcionki($00000000);
+    BW_RozmiarCzcionki($006CE0F8);
+    // wielka: $006CE0FC;
+    // normalna: $006CE0F8;
+    // mala: $006CE0F4;
+    // *****************************************************cały kod tutaj:
+    // BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
+    BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza)));
+    BW_TekstXY(4, 13, PAnsiChar(fPomiarCzasu));
+    fCzasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
+    BW_TekstXY(306, 22, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
+    BW_TekstXY(14, 284, PAnsiChar(#4 + Godzina));
+    // *****************************************************
+    BW_RozmiarCzcionki($00000000);
+    asm                               // przywrócenie rozmiaru czcionki
+      pushad
+      mov   ecx, pierwotnyRozmiarCzcionki
+      call  dword ptr [adres]
+      popad
+    end;
+    QueryPerformanceCounter(stop);
+    delta := ((stop - start) / czestoliwosc) * 1000;
+    fPomiarCzasu := AnsiString(FloatToStr(delta));
   end;
-  QueryPerformanceCounter(stop);
-  delta := ((stop - start) / czestoliwosc) * 1000;
-  fPomiarCzasu := AnsiString(FloatToStr(delta));
+end;
+
+function TPodpiecia.CzasGry(const czasGrySekundy: single): AnsiString;
+var
+  czescSekundy, czescMinuty: integer;
+begin
+  czescMinuty := floor(czasGrySekundy / 60);
+  czescSekundy := floor(czasGrySekundy - (czescMinuty * 60));
+  if czescSekundy < 10 then Result := IntToStr(czescMinuty) + ':' + '0' + IntToStr(czescSekundy)
+  else Result := IntToStr(czescMinuty) + ':' + IntToStr(czescSekundy);
+end;
+
+function TPodpiecia.Godzina: AnsiString;
+var
+  Godzina: TDateTime;
+begin
+  Godzina := time;
+  Result := FormatDateTime('hh:nn', Godzina);
 end;
 
 class procedure TPodpiecia.Podpiecie_KomendyGra;
@@ -165,7 +218,7 @@ end;
 function TPodpiecia.KomendyGra;
 begin
   Result := False;
-  if wprowadzonyTekst = 'ggyo' then BW_Tekst(#4'spierdalaj');
+  if LowerCase(wprowadzonyTekst) = '/ggyo' then BW_Tekst(#4'Spierdalaj');
   Result := True;
 end;
 
@@ -205,7 +258,32 @@ begin
   end;
 end;
 
-procedure TPodpiecia.BW_OdtwarzajDzwiek;
+function TPodpiecia.APM(const numerGracza: integer): AnsiString;
+var
+  CzasGry: single;
+  i: integer;
+begin
+  CzasGry := integer(Pointer($0057F23C)^) / 23.81;
+  if CzasGry < 120 then Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (CzasGry)) * 60)))
+  else
+  begin
+    if fResetujAPM then ResetujAPM(True);
+    Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (CzasGry - 120)) * 60)));
+  end;
+end;
+
+procedure TPodpiecia.ResetujAPM(const resetuj: boolean);
+var
+  i: integer;
+begin
+  if resetuj then
+  begin
+    for i := 0 to Length(fLicznikAkcji) - 1 do fLicznikAkcji[i] := 0;
+    fResetujAPM := False; // not resetuj;
+  end;
+end;
+
+procedure TPodpiecia.BW_OdtwarzajDzwiek(const numer: integer); stdcall;
 const
   adres: cardinal = $004BC270;
   asm
@@ -218,7 +296,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_Tekst;
+procedure TPodpiecia.BW_Tekst(const tekst: PAnsiChar); stdcall;
 const
   adres: cardinal = $0048D0C0;
   asm
@@ -229,7 +307,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_TekstXY;
+procedure TPodpiecia.BW_TekstXY(const x, y: integer; const tekst: PAnsiChar); stdcall;
 const
   adres: cardinal = $004202B0;
   asm
@@ -241,7 +319,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_RozmiarCzcionki;
+procedure TPodpiecia.BW_RozmiarCzcionki(const rozmiarCzcionki: cardinal); stdcall;
 const
   adres: cardinal = $0041FB30;
   asm
@@ -275,7 +353,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_Boks(const x, y, s, w: integer; const kolor: byte); stdcall;
+procedure TPodpiecia.BW_Boks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
 const
   adresKolor: cardinal = $006CF4AC;
   adres: cardinal = $004E1D20;
@@ -284,28 +362,28 @@ const
     mov   cl, kolor
     mov   eax, adresKolor
     mov   byte ptr ds:[eax], cl
-    push  w
-    push  s
+    push  wysokosc
+    push  szerekosc
     push  y
     push  x
     call  dword ptr [adres]
     popad
 end;
 
-procedure TPodpiecia.BW_PrzezroczystyBoks(const x, y, s, w: integer; const kolor: byte); stdcall;
+procedure TPodpiecia.BW_PrzezroczystyBoks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
 var
   rysuj: boolean;
   i, j: integer;
 begin
   rysuj := True;
-  for i := y to y + w - 1 do
+  for i := y to y + wysokosc - 1 do
   begin
-    for j := x to x + s - 1 do
+    for j := x to x + szerekosc - 1 do
     begin
       if rysuj then BW_Boks(j, i, 1, 1, kolor);
       rysuj := not rysuj;
     end;
-    if s mod 2 = 0 then rysuj := not rysuj;
+    if szerekosc mod 2 = 0 then rysuj := not rysuj;
   end;
 end;
 
@@ -316,14 +394,24 @@ begin
     if Gra then
     begin
 
+    end
+    else
+    begin
+      if fResetujZmienne then
+      begin
+        ShittyPlugin.pResetujAPM := True;
+        ShittyPlugin.pPoczatekGry := True;
+        fResetujZmienne := False;
+      end;
     end;
-    Sleep(350);
+    sleep(350);
   end;
 end;
 
 constructor TGlownyWatek.Create(wstrzymanie: boolean);
 begin
   FreeOnTerminate := True;
+  fResetujZmienne := True;
   inherited Create(wstrzymanie);
 end;
 
