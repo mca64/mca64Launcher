@@ -5,24 +5,30 @@ uses
   System.Classes,
   System.Diagnostics,
   System.Math,
+  IdContext,
+  IdGlobal,
+  IdIRC,
   Windows;
 
 type
-  TPodpiecia = class
+  TShittyPlugin = class
   private
     fLicznikAkcji: array [0 .. 7] of integer;
     fAkcje: array [0 .. 7] of byte;
-    fPomiarCzasu: AnsiString;
+    fPomiarCzasuWykonaniaKodu: AnsiString;
     fMojNumerGracza: integer;
     fResetujAPM: boolean;
     fPoczatekGry: boolean;
     fCzasGrySekundy: single;
+    fTc: boolean;
+    fNowaWiadomoscTwitch: boolean;
+    fWiadomoscTwitch: AnsiString;
     procedure JmpPatch(const od, skokDo: cardinal);
     procedure InstalacjaPodpiec;
     procedure CofniecieInstalacjiPodpiec;
-    class procedure Podpiecie_Wyswietlanie(instance: TPodpiecia); static;
-    class procedure Podpiecie_KomendyGra(instance: TPodpiecia); static;
-    class procedure Podpiecie_Akcje(instance: TPodpiecia); static;
+    class procedure Podpiecie_Wyswietlanie(instance: TShittyPlugin); static;
+    class procedure Podpiecie_KomendyGra(instance: TShittyPlugin); static;
+    class procedure Podpiecie_Akcje(instance: TShittyPlugin); static;
     // ****
     procedure Wyswietlanie;
     function CzasGry(const czasGrySekundy: single): AnsiString;
@@ -46,6 +52,10 @@ type
     property pResetujAPM: boolean write ResetujAPM;
     property pPoczatekGry: boolean write fPoczatekGry;
     property pCzasGrySekundy: single read fCzasGrySekundy;
+    property pTc: boolean read fTc;
+    property pNowaWiadomoscTwitch: boolean read fNowaWiadomoscTwitch write fNowaWiadomoscTwitch;
+    property pWiadomoscTwitch: AnsiString read fWiadomoscTwitch write fWiadomoscTwitch;
+    constructor Create;
   end;
 
   TGlownyWatek = class(TThread)
@@ -57,9 +67,23 @@ type
     constructor Create(wstrzymanie: boolean);
   end;
 
+  TCzatTwitcha = class
+  private
+    fIdIRC: TIdIRC;
+    fLogin: string;
+    fHaslo: string;
+    function Polacz: boolean;
+    procedure NowaWiadomosc(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AMessage: string);
+  protected
+  public
+    constructor Create(const login, haslo: string);
+    destructor Destroy; override;
+  end;
+
 var
-  ShittyPlugin: TPodpiecia;
+  ShittyPlugin: TShittyPlugin;
   glownyWatek: TGlownyWatek;
+  czatTwitcha: TCzatTwitcha;
 
 function Gra: boolean; forward;
 function Powtorka: boolean; forward;
@@ -67,7 +91,7 @@ function Lobby: boolean; forward;
 function LobbyPrzedGra: boolean; forward;
 procedure KopiujBlokPamieci(const miejsceDocelowe, zrodlo, dlugosc: cardinal); forward;
 
-procedure TPodpiecia.JmpPatch(const od, skokDo: cardinal);
+procedure TShittyPlugin.JmpPatch(const od, skokDo: cardinal);
 var
   lgJmp: array [0 .. 4] of byte;
 begin
@@ -83,7 +107,7 @@ begin
   KopiujBlokPamieci(od, cardinal(@lgJmp), 5);
 end;
 
-procedure TPodpiecia.InstalacjaPodpiec;
+procedure TShittyPlugin.InstalacjaPodpiec;
 const
   kod1: array [0 .. 1] of byte = ($90, $90);
   kod2: array [0 .. 1] of byte = ($EB, $04);
@@ -96,12 +120,12 @@ begin
   KopiujBlokPamieci($0047F120, cardinal(@kod2), SizeOf(kod2)); // odświeżanie tekstu
 end;
 
-procedure TPodpiecia.CofniecieInstalacjiPodpiec;
+procedure TShittyPlugin.CofniecieInstalacjiPodpiec;
 begin
 
 end;
 
-class procedure TPodpiecia.Podpiecie_Wyswietlanie;
+class procedure TShittyPlugin.Podpiecie_Wyswietlanie;
 const
   oryginalnaFunkcja: cardinal = $0041FB30;
   powrot: cardinal = $0048D0AE;
@@ -117,14 +141,14 @@ begin
   end;
 end;
 
-procedure TPodpiecia.Wyswietlanie;
+procedure TShittyPlugin.Wyswietlanie;
 const
   adres: cardinal = $0041FB30;
 var
   pierwotnyRozmiarCzcionki: cardinal;
-  czestoliwosc: Int64;
-  start: Int64;
-  stop: Int64;
+  czestoliwosc: int64;
+  start: int64;
+  stop: int64;
   delta: extended;
 begin
   if Gra then
@@ -133,12 +157,17 @@ begin
     QueryPerformanceCounter(start);
     if fPoczatekGry then
     begin
-      BW_Tekst(PAnsiChar(#4'<mca64Launcher:> ' + #7'Wersja: ' + #3'1.8.6.4'));
-      BW_Tekst(PAnsiChar(#4'<ShittyPlugin:> ' + #7'Wersja: ' + #3'2.0'));
+      BW_Tekst(#4'<mca64Launcher:> ' + #7'Wersja: ' + #3'1.8.6.4');
+      BW_Tekst(#4'<ShittyPlugin:> ' + #7'Wersja: ' + #3'2.0');
       fMojNumerGracza := integer(Pointer($00512684)^);
       fResetujAPM := True;
       glownyWatek.fResetujZmienne := True;
       fPoczatekGry := False;
+    end;
+    if (fTc) and (fNowaWiadomoscTwitch) then
+    begin
+      BW_Tekst(PAnsiChar(fWiadomoscTwitch));
+      fNowaWiadomoscTwitch := False;
     end;
     pierwotnyRozmiarCzcionki := cardinal(Pointer($006D5DDC)^);
     BW_RozmiarCzcionki($00000000);
@@ -149,10 +178,10 @@ begin
     // *****************************************************cały kod tutaj:
     // BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
     fCzasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
-    BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
-    BW_TekstXY(4, 13, PAnsiChar(fPomiarCzasu));
-    BW_TekstXY(306, 22, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
-    BW_TekstXY(14, 284, PAnsiChar(#4 + Godzina));
+    BW_TekstXY(004, 002, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
+    BW_TekstXY(004, 013, PAnsiChar(fPomiarCzasuWykonaniaKodu + ' ms'));
+    BW_TekstXY(306, 022, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
+    BW_TekstXY(014, 284, PAnsiChar(#4 + Godzina));
     // *****************************************************
     BW_RozmiarCzcionki($00000000);
     asm                               // przywrócenie rozmiaru czcionki
@@ -163,11 +192,11 @@ begin
     end;
     QueryPerformanceCounter(stop);
     delta := ((stop - start) / czestoliwosc) * 1000;
-    fPomiarCzasu := AnsiString(FloatToStr(delta));
+    fPomiarCzasuWykonaniaKodu := AnsiString(FloatToStr(delta));
   end;
 end;
 
-function TPodpiecia.CzasGry(const czasGrySekundy: single): AnsiString;
+function TShittyPlugin.CzasGry(const czasGrySekundy: single): AnsiString;
 var
   czescSekundy, czescMinuty: integer;
 begin
@@ -177,7 +206,7 @@ begin
   else Result := AnsiString(IntToStr(czescMinuty) + ':' + IntToStr(czescSekundy));
 end;
 
-function TPodpiecia.Godzina: AnsiString;
+function TShittyPlugin.Godzina: AnsiString;
 var
   Godzina: TDateTime;
 begin
@@ -185,7 +214,7 @@ begin
   Result := AnsiString(FormatDateTime('hh:nn', Godzina));
 end;
 
-class procedure TPodpiecia.Podpiecie_KomendyGra;
+class procedure TShittyPlugin.Podpiecie_KomendyGra;
 const
   oryginalnaFunkcja: cardinal = $004B23E0;
   powrot: cardinal = $004F337A;
@@ -215,17 +244,39 @@ begin
   end;
 end;
 
-function TPodpiecia.KomendyGra;
+function TShittyPlugin.KomendyGra;
 begin
   Result := False;
-  if LowerCase(String(wprowadzonyTekst)) = '/ggyo' then
+  if LowerCase(String(wprowadzonyTekst)) = '/t' then
   begin
     BW_Tekst(#4'Spierdalaj');
     Result := True;
+  end
+  else if LowerCase(String(wprowadzonyTekst)) = '/tc' then
+  begin
+    if fTc then
+    begin
+      fTc := False;
+      BW_Tekst(#4'<mca64Launcher> ' + #7 + 'Wiadomości Twitch''a: ' + #6 + 'wyłączone')
+    end
+    else
+    begin
+      fTc := True;
+      BW_Tekst(#4'<mca64Launcher> ' + #7 + 'Wiadomości Twitch''a: ' + #3 + 'włączone')
+    end;
+  end
+  else if LowerCase(String(wprowadzonyTekst)) = '/twitch' then
+  begin
+    try
+      if czatTwitcha <> nil then FreeAndNil(czatTwitcha);
+      czatTwitcha := TCzatTwitcha.Create('mca64', 'oauth:e1jrqn8zvse58ez9zvb4p8w3lgvtqtg');
+      BW_Tekst(#4'<mca64Launcher> '#7'Próba ponownego połączenia z czatem Twitcha...');
+    except
+    end;
   end;
 end;
 
-class procedure TPodpiecia.Podpiecie_Akcje;
+class procedure TShittyPlugin.Podpiecie_Akcje;
 const
   oryginalnaFunkcja: cardinal = $004CDE70;
   powrot: cardinal = $00486D90;
@@ -252,7 +303,7 @@ begin
 
 end;
 
-procedure TPodpiecia.Akcje;
+procedure TShittyPlugin.Akcje;
 begin
   if (numerGracza < 8) and (kodAkcji <> 55) then
   begin
@@ -261,7 +312,7 @@ begin
   end;
 end;
 
-function TPodpiecia.APM(const numerGracza: integer; czasGrySekundy: single): AnsiString;
+function TShittyPlugin.APM(const numerGracza: integer; czasGrySekundy: single): AnsiString;
 begin
   czasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
   if czasGrySekundy < 120 then Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (czasGrySekundy)) * 60)))
@@ -272,7 +323,7 @@ begin
   end;
 end;
 
-procedure TPodpiecia.ResetujAPM(const resetuj: boolean);
+procedure TShittyPlugin.ResetujAPM(const resetuj: boolean);
 var
   i: integer;
 begin
@@ -283,7 +334,7 @@ begin
   end;
 end;
 
-procedure TPodpiecia.BW_OdtwarzajDzwiek(const numer: integer); stdcall;
+procedure TShittyPlugin.BW_OdtwarzajDzwiek(const numer: integer); stdcall;
 const
   adres: cardinal = $004BC270;
   asm
@@ -296,7 +347,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_Tekst(const tekst: PAnsiChar); stdcall;
+procedure TShittyPlugin.BW_Tekst(const tekst: PAnsiChar); stdcall;
 const
   adres: cardinal = $0048D0C0;
   asm
@@ -307,7 +358,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_TekstXY(const x, y: integer; const tekst: PAnsiChar); stdcall;
+procedure TShittyPlugin.BW_TekstXY(const x, y: integer; const tekst: PAnsiChar); stdcall;
 const
   adres: cardinal = $004202B0;
   asm
@@ -319,7 +370,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_RozmiarCzcionki(const rozmiarCzcionki: cardinal); stdcall;
+procedure TShittyPlugin.BW_RozmiarCzcionki(const rozmiarCzcionki: cardinal); stdcall;
 const
   adres: cardinal = $0041FB30;
   asm
@@ -336,7 +387,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_Piksel(const x, y: integer; const kolor: byte); stdcall;
+procedure TShittyPlugin.BW_Piksel(const x, y: integer; const kolor: byte); stdcall;
 const
   adresKolor: cardinal = $006CF4AC;
   adres: cardinal = $004E1D20;
@@ -353,7 +404,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_Boks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
+procedure TShittyPlugin.BW_Boks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
 const
   adresKolor: cardinal = $006CF4AC;
   adres: cardinal = $004E1D20;
@@ -370,7 +421,7 @@ const
     popad
 end;
 
-procedure TPodpiecia.BW_PrzezroczystyBoks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
+procedure TShittyPlugin.BW_PrzezroczystyBoks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
 var
   rysuj: boolean;
   i, j: integer;
@@ -387,13 +438,20 @@ begin
   end;
 end;
 
+constructor TShittyPlugin.Create;
+begin
+  inherited Create;
+  fTc := True;
+  InstalacjaPodpiec;
+end;
+
 procedure TGlownyWatek.Execute;
 begin
+  czatTwitcha := TCzatTwitcha.Create('mca64', 'oauth:e1jrqn8zvse58ez9zvb4p8w3lgvtqtg');
   while not Terminated do
   begin
     if Gra then
     begin
-
     end
     else
     begin
@@ -404,15 +462,66 @@ begin
         fResetujZmienne := False;
       end;
     end;
-    sleep(350);
+    Sleep(350);
   end;
 end;
 
 constructor TGlownyWatek.Create(wstrzymanie: boolean);
 begin
+  inherited Create(wstrzymanie);
   FreeOnTerminate := True;
   fResetujZmienne := True;
-  inherited Create(wstrzymanie);
+end;
+
+function TCzatTwitcha.Polacz: boolean;
+begin
+  Result := False;
+  try
+    fIdIRC := TIdIRC.Create(nil);
+    fIdIRC.OnPrivateMessage := NowaWiadomosc;
+    fIdIRC.UserMode := [];
+    fIdIRC.Host := 'irc.twitch.tv';
+    fIdIRC.Nickname := fLogin; // 'mca64';
+    fIdIRC.Password := fHaslo; // 'oauth:hdbmv7oeoe2d3uero62l28t0ylwy9vg';
+  finally
+    try
+      fIdIRC.Connect;
+      fIdIRC.Join('#' + fLogin);
+      fIdIRC.IOHandler.DefStringEncoding := IndyTextEncoding_UTF8();
+      Result := True;
+    except
+      fIdIRC.Free;
+    end;
+  end;
+end;
+
+procedure TCzatTwitcha.NowaWiadomosc(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AMessage: string);
+var
+  temp: string;
+begin
+  if ShittyPlugin.pTc = True then
+  begin
+    temp := Copy(AMessage, 1, 80);
+    ShittyPlugin.pWiadomoscTwitch := AnsiString(#3 + ANicknameFrom + ': ' + #4 + temp);
+    ShittyPlugin.pNowaWiadomoscTwitch := True;
+  end;
+end;
+
+constructor TCzatTwitcha.Create(const login, haslo: String);
+begin
+  inherited Create;
+  fLogin := login;
+  fHaslo := haslo;
+  Polacz;
+end;
+
+destructor TCzatTwitcha.Destroy;
+begin
+  try
+    fIdIRC.Free;
+  except
+  end;
+  inherited;
 end;
 
 function Gra;
@@ -465,8 +574,7 @@ begin
   if stan = DLL_PROCESS_ATTACH then
   begin
     glownyWatek := TGlownyWatek.Create(True);
-    ShittyPlugin := TPodpiecia.Create;
-    ShittyPlugin.InstalacjaPodpiec;
+    ShittyPlugin := TShittyPlugin.Create;
     DirectIPPatch;
     glownyWatek.start;
   end;
