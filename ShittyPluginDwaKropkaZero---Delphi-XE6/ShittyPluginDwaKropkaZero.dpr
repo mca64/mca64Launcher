@@ -31,7 +31,7 @@ type
     function KomendyGra(const wprowadzonyTekst: PAnsiChar): boolean;
     // ****
     procedure Akcje(const numerGracza, kodAkcji: integer);
-    function APM(const numerGracza: integer): AnsiString;
+    function APM(const numerGracza: integer; czasGrySekundy: single): AnsiString;
     procedure ResetujAPM(const resetuj: boolean);
     //
     procedure BW_OdtwarzajDzwiek(const numer: integer); stdcall;
@@ -148,9 +148,9 @@ begin
     // mala: $006CE0F4;
     // *****************************************************cały kod tutaj:
     // BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
-    BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza)));
-    BW_TekstXY(4, 13, PAnsiChar(fPomiarCzasu));
     fCzasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
+    BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
+    BW_TekstXY(4, 13, PAnsiChar(fPomiarCzasu));
     BW_TekstXY(306, 22, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
     BW_TekstXY(14, 284, PAnsiChar(#4 + Godzina));
     // *****************************************************
@@ -173,8 +173,8 @@ var
 begin
   czescMinuty := floor(czasGrySekundy / 60);
   czescSekundy := floor(czasGrySekundy - (czescMinuty * 60));
-  if czescSekundy < 10 then Result := IntToStr(czescMinuty) + ':' + '0' + IntToStr(czescSekundy)
-  else Result := IntToStr(czescMinuty) + ':' + IntToStr(czescSekundy);
+  if czescSekundy < 10 then Result := AnsiString(IntToStr(czescMinuty) + ':' + '0' + IntToStr(czescSekundy))
+  else Result := AnsiString(IntToStr(czescMinuty) + ':' + IntToStr(czescSekundy));
 end;
 
 function TPodpiecia.Godzina: AnsiString;
@@ -182,7 +182,7 @@ var
   Godzina: TDateTime;
 begin
   Godzina := time;
-  Result := FormatDateTime('hh:nn', Godzina);
+  Result := AnsiString(FormatDateTime('hh:nn', Godzina));
 end;
 
 class procedure TPodpiecia.Podpiecie_KomendyGra;
@@ -218,8 +218,11 @@ end;
 function TPodpiecia.KomendyGra;
 begin
   Result := False;
-  if LowerCase(wprowadzonyTekst) = '/ggyo' then BW_Tekst(#4'Spierdalaj');
-  Result := True;
+  if LowerCase(String(wprowadzonyTekst)) = '/ggyo' then
+  begin
+    BW_Tekst(#4'Spierdalaj');
+    Result := True;
+  end;
 end;
 
 class procedure TPodpiecia.Podpiecie_Akcje;
@@ -258,17 +261,14 @@ begin
   end;
 end;
 
-function TPodpiecia.APM(const numerGracza: integer): AnsiString;
-var
-  CzasGry: single;
-  i: integer;
+function TPodpiecia.APM(const numerGracza: integer; czasGrySekundy: single): AnsiString;
 begin
-  CzasGry := integer(Pointer($0057F23C)^) / 23.81;
-  if CzasGry < 120 then Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (CzasGry)) * 60)))
+  czasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
+  if czasGrySekundy < 120 then Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (czasGrySekundy)) * 60)))
   else
   begin
     if fResetujAPM then ResetujAPM(True);
-    Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (CzasGry - 120)) * 60)));
+    Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (czasGrySekundy - 120)) * 60)));
   end;
 end;
 
@@ -449,7 +449,6 @@ const
   kod: array [0 .. 15] of byte = ($C7, $44, $24, 08, 05, 00, 00, 00, $B8, 01, 00, 00, 00, $C2, 08, 00);
 var
   adres: cardinal;
-  i: integer;
 begin
   Result := False;
   try
