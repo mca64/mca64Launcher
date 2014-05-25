@@ -3,8 +3,9 @@ library ShittyPluginDwaKropkaZero;
 uses
   System.SysUtils,
   System.Classes,
-  System.Diagnostics,
+  // System.Diagnostics,
   System.Math,
+  System.IniFiles,
   IdContext,
   IdGlobal,
   IdIRC,
@@ -15,7 +16,7 @@ type
   private
     fLicznikAkcji: array [0 .. 7] of integer;
     fAkcje: array [0 .. 7] of byte;
-    fPomiarCzasuWykonaniaKodu: AnsiString;
+    // fPomiarCzasuWykonaniaKodu: AnsiString;
     fMojNumerGracza: integer;
     fResetujAPM: boolean;
     fPoczatekGry: boolean;
@@ -76,7 +77,7 @@ type
     procedure NowaWiadomosc(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AMessage: string);
   protected
   public
-    constructor Create(const login, haslo: string);
+    constructor Create;
     destructor Destroy; override;
   end;
 
@@ -90,6 +91,7 @@ function Powtorka: boolean; forward;
 function Lobby: boolean; forward;
 function LobbyPrzedGra: boolean; forward;
 procedure KopiujBlokPamieci(const miejsceDocelowe, zrodlo, dlugosc: cardinal); forward;
+function DirectIPPatch: boolean; forward;
 
 procedure TShittyPlugin.JmpPatch(const od, skokDo: cardinal);
 var
@@ -146,23 +148,22 @@ const
   adres: cardinal = $0041FB30;
 var
   pierwotnyRozmiarCzcionki: cardinal;
-  czestoliwosc: int64;
-  start: int64;
-  stop: int64;
-  delta: extended;
+  { czestoliwosc: int64;
+    start: int64;
+    stop: int64;
+    delta: extended; }
 begin
   if Gra then
   begin
-    QueryPerformanceFrequency(czestoliwosc);
-    QueryPerformanceCounter(start);
+    { QueryPerformanceFrequency(czestoliwosc);
+      QueryPerformanceCounter(start); }
     if fPoczatekGry then
     begin
-      BW_Tekst(#4'<mca64Launcher:> ' + #7'Wersja: ' + #3'1.8.6.4');
-      BW_Tekst(#4'<ShittyPlugin:> ' + #7'Wersja: ' + #3'2.0');
       fMojNumerGracza := integer(Pointer($00512684)^);
       fResetujAPM := True;
       glownyWatek.fResetujZmienne := True;
       fPoczatekGry := False;
+      BW_Tekst(#4'<ShittyPlugin> ' + #7'Wersja: ' + #3'2.0');
     end;
     if (fTc) and (fNowaWiadomoscTwitch) then
     begin
@@ -179,7 +180,7 @@ begin
     // BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
     fCzasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
     BW_TekstXY(004, 002, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
-    BW_TekstXY(004, 013, PAnsiChar(fPomiarCzasuWykonaniaKodu + ' ms'));
+    // BW_TekstXY(004, 013, PAnsiChar(fPomiarCzasuWykonaniaKodu + ' ms'));
     BW_TekstXY(306, 022, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
     BW_TekstXY(014, 284, PAnsiChar(#4 + Godzina));
     // *****************************************************
@@ -190,9 +191,9 @@ begin
       call  dword ptr [adres]
       popad
     end;
-    QueryPerformanceCounter(stop);
-    delta := ((stop - start) / czestoliwosc) * 1000;
-    fPomiarCzasuWykonaniaKodu := AnsiString(FloatToStr(delta));
+    { QueryPerformanceCounter(stop);
+      delta := ((stop - start) / czestoliwosc) * 1000;
+      fPomiarCzasuWykonaniaKodu := AnsiString(FloatToStr(delta)); }
   end;
 end;
 
@@ -257,20 +258,19 @@ begin
     if fTc then
     begin
       fTc := False;
-      BW_Tekst(#4'<mca64Launcher> ' + #7 + 'Wiadomości Twitch''a: ' + #6 + 'wyłączone')
+      BW_Tekst(#4'<ShittyPlugin> ' + #7 + 'Wiadomości Twitch''a: ' + #6 + 'wyłączone')
     end
     else
     begin
       fTc := True;
-      BW_Tekst(#4'<mca64Launcher> ' + #7 + 'Wiadomości Twitch''a: ' + #3 + 'włączone')
+      BW_Tekst(#4'<ShittyPlugin> ' + #7 + 'Wiadomości Twitch''a: ' + #3 + 'włączone')
     end;
   end
   else if LowerCase(String(wprowadzonyTekst)) = '/twitch' then
   begin
     try
       if czatTwitcha <> nil then FreeAndNil(czatTwitcha);
-      czatTwitcha := TCzatTwitcha.Create('mca64', 'oauth:e1jrqn8zvse58ez9zvb4p8w3lgvtqtg');
-      BW_Tekst(#4'<mca64Launcher> '#7'Próba ponownego połączenia z czatem Twitcha...');
+      czatTwitcha := TCzatTwitcha.Create;
     except
     end;
   end;
@@ -314,7 +314,6 @@ end;
 
 function TShittyPlugin.APM(const numerGracza: integer; czasGrySekundy: single): AnsiString;
 begin
-  czasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
   if czasGrySekundy < 120 then Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (czasGrySekundy)) * 60)))
   else
   begin
@@ -442,16 +441,18 @@ constructor TShittyPlugin.Create;
 begin
   inherited Create;
   fTc := True;
-  InstalacjaPodpiec;
+  ShittyPlugin.InstalacjaPodpiec;
 end;
 
 procedure TGlownyWatek.Execute;
 begin
-  czatTwitcha := TCzatTwitcha.Create('mca64', 'oauth:e1jrqn8zvse58ez9zvb4p8w3lgvtqtg');
+  DirectIPPatch;
+  czatTwitcha := TCzatTwitcha.Create;
   while not Terminated do
   begin
     if Gra then
     begin
+
     end
     else
     begin
@@ -476,22 +477,19 @@ end;
 function TCzatTwitcha.Polacz: boolean;
 begin
   Result := False;
+  if Gra then ShittyPlugin.BW_Tekst(#4'<ShittyPlugin> '#7'Próba ponownego połączenia z czatem Twitcha...');
   try
     fIdIRC := TIdIRC.Create(nil);
     fIdIRC.OnPrivateMessage := NowaWiadomosc;
     fIdIRC.UserMode := [];
     fIdIRC.Host := 'irc.twitch.tv';
-    fIdIRC.Nickname := fLogin; // 'mca64';
-    fIdIRC.Password := fHaslo; // 'oauth:hdbmv7oeoe2d3uero62l28t0ylwy9vg';
-  finally
-    try
-      fIdIRC.Connect;
-      fIdIRC.Join('#' + fLogin);
-      fIdIRC.IOHandler.DefStringEncoding := IndyTextEncoding_UTF8();
-      Result := True;
-    except
-      fIdIRC.Free;
-    end;
+    fIdIRC.Nickname := fLogin;
+    fIdIRC.Password := fHaslo;
+    fIdIRC.Connect;
+    fIdIRC.Join('#' + fLogin);
+    fIdIRC.IOHandler.DefStringEncoding := IndyTextEncoding_UTF8();
+    Result := True;
+  except
   end;
 end;
 
@@ -507,12 +505,20 @@ begin
   end;
 end;
 
-constructor TCzatTwitcha.Create(const login, haslo: String);
+constructor TCzatTwitcha.Create;
+var
+  ini: TINIFile;
 begin
   inherited Create;
-  fLogin := login;
-  fHaslo := haslo;
-  Polacz;
+  ini := TINIFile.Create(GetCurrentDir + '\ShittyPlugin.ini');
+  try
+    fLogin := ini.ReadString('ShittyPlugin', 'TwitchLogin', '');
+    fHaslo := ini.ReadString('ShittyPlugin', 'TwitchHaslo', '');
+  finally
+    ini.Free;
+  end;
+  if (fLogin <> '') and (fHaslo <> '') then Polacz
+  else if Gra then ShittyPlugin.BW_Tekst(#4'<ShittyPlugin> '#6'Ustawienia Twitch''a nie są skonfigurowane');
 end;
 
 destructor TCzatTwitcha.Destroy;
@@ -553,7 +559,7 @@ begin
   VirtualProtect(Pointer(miejsceDocelowe), dlugosc, ochrona, nil);
 end;
 
-function DirectIPPatch: boolean;
+function DirectIPPatch;
 const
   kod: array [0 .. 15] of byte = ($C7, $44, $24, 08, 05, 00, 00, 00, $B8, 01, 00, 00, 00, $C2, 08, 00);
 var
@@ -573,10 +579,8 @@ procedure Wstrzykniecie(stan: integer);
 begin
   if stan = DLL_PROCESS_ATTACH then
   begin
-    glownyWatek := TGlownyWatek.Create(True);
     ShittyPlugin := TShittyPlugin.Create;
-    DirectIPPatch;
-    glownyWatek.start;
+    glownyWatek := TGlownyWatek.Create(False);
   end;
 end;
 
