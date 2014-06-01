@@ -1,14 +1,14 @@
 SetCompressor /FINAL /SOLID LZMA
 ShowInstDetails "show"
 ShowUninstDetails "show"
-!define WERSJA "1.8.8.8"
+!define WERSJA "1.8.8.9"
 !define VERSIONMAJOR 1
 !define VERSIONMINOR 8
-;!define VERSIONBUILD 8.8
+;!define VERSIONBUILD 8.9
 !define HELPURL "mailto:mca640@gmail.com"
 !define UPDATEURL "http://9rax.com/mca64/download.php"
 !define ABOUTURL "http://9rax.com/mca64/mca64Launcher.htm" 
-!define ROZMIAR 57721
+!define ROZMIAR 58921
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES\mca64Launcher\mca64Launcher ${WERSJA}"
 LicenseData "mca64Launcher ${WERSJA}\licencja.txt"
@@ -66,6 +66,8 @@ section "install"
 	File "mca64Launcher ${WERSJA}\ResolutionHackDemo.dll"
 	File "mca64Launcher ${WERSJA}\scc.dat"
 	File "mca64Launcher ${WERSJA}\ShittyPlugin.dll"
+	File "mca64Launcher ${WERSJA}\ShittyPluginDwaKropkaZero.dll"
+	File "mca64Launcher ${WERSJA}\ShittyPluginDwaKropkaZero.ini"	
 	File "mca64Launcher ${WERSJA}\SNP_DirectIP.snp"
 	File "mca64Launcher ${WERSJA}\ssleay32_"
 	File "mca64Launcher ${WERSJA}\TwitchCzat.dll"
@@ -75,7 +77,7 @@ section "install"
 	File "mca64Launcher ${WERSJA}\VideoNagrywanie.dll"
 	File "mca64Launcher ${WERSJA}\wDetector.ini"
 	File "mca64Launcher ${WERSJA}\wDetector.w"
-	File "mca64Launcher ${WERSJA}\wDPatch.txt"
+	;File "mca64Launcher ${WERSJA}\wDPatch.txt"
 	File "mca64Launcher ${WERSJA}\Wiadomosc.wav"
 	File "mca64Launcher ${WERSJA}\wLauncher.exe"
 	File "mca64Launcher ${WERSJA}\wLauncher.ini"
@@ -172,6 +174,8 @@ section "uninstall"
 	Delete "$INSTDIR\ResolutionHackDemo.dll"
 	Delete "$INSTDIR\scc.dat"
 	Delete "$INSTDIR\ShittyPlugin.dll"
+	Delete "$INSTDIR\ShittyPluginDwaKropkaZero.dll"	
+	Delete "$INSTDIR\ShittyPluginDwaKropkaZero.ini"		
 	Delete "$INSTDIR\SNP_DirectIP.snp"	
 	Delete "$INSTDIR\ssleay32_"
 	Delete "$INSTDIR\TwitchCzat.dll"
