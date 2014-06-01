@@ -3,7 +3,6 @@ library ShittyPluginDwaKropkaZero;
 uses
   System.SysUtils,
   System.Classes,
-  // System.Diagnostics,
   System.Math,
   System.IniFiles,
   IdContext,
@@ -30,17 +29,13 @@ type
     class procedure Podpiecie_Wyswietlanie(instance: TShittyPlugin); static;
     class procedure Podpiecie_KomendyGra(instance: TShittyPlugin); static;
     class procedure Podpiecie_Akcje(instance: TShittyPlugin); static;
-    // ****
     procedure Wyswietlanie;
     function CzasGry(const czasGrySekundy: single): AnsiString;
     function Godzina: AnsiString;
-    //
     function KomendyGra(const wprowadzonyTekst: PAnsiChar): boolean;
-    // ****
     procedure Akcje(const numerGracza, kodAkcji: integer);
     function APM(const numerGracza: integer; czasGrySekundy: single): AnsiString;
     procedure ResetujAPM(const resetuj: boolean);
-    //
     procedure BW_OdtwarzajDzwiek(const numer: integer); stdcall;
     procedure BW_Tekst(const tekst: PAnsiChar); stdcall;
     procedure BW_TekstXY(const x, y: integer; const tekst: PAnsiChar); stdcall;
@@ -75,8 +70,11 @@ type
     fHaslo: string;
     function Polacz: boolean;
     procedure NowaWiadomosc(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AMessage: string);
+    procedure WyslijWiadomosc(const tresc: AnsiString);
   protected
   public
+    property pLogin: string read fLogin;
+    property pWyslijWiadomosc: AnsiString write WyslijWiadomosc;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -246,14 +244,11 @@ begin
 end;
 
 function TShittyPlugin.KomendyGra;
+var
+  wiadomoscDoWyslania, temp: AnsiString;
 begin
-  Result := False;
-  if LowerCase(String(wprowadzonyTekst)) = '/t' then
-  begin
-    BW_Tekst(#4'Spierdalaj');
-    Result := True;
-  end
-  else if LowerCase(String(wprowadzonyTekst)) = '/tc' then
+  Result := True;
+  if LowerCase(String(wprowadzonyTekst)) = '/tc' then
   begin
     if fTc then
     begin
@@ -273,7 +268,19 @@ begin
       czatTwitcha := TCzatTwitcha.Create;
     except
     end;
-  end;
+  end
+  else if Pos('/t ', LowerCase(String(wprowadzonyTekst))) = 1 then
+  begin
+    if Length(String(wprowadzonyTekst)) > 3 then
+    begin
+      wiadomoscDoWyslania := Copy(wprowadzonyTekst, 4, Length(wprowadzonyTekst) - 3);
+      czatTwitcha.pWyslijWiadomosc := wiadomoscDoWyslania;
+      temp := #7 + AnsiString(czatTwitcha.pLogin) + ': ' + #4 + wiadomoscDoWyslania;
+      BW_Tekst(PAnsiChar(temp));
+    end;
+  end
+  else Result := False;
+
 end;
 
 class procedure TShittyPlugin.Podpiecie_Akcje;
@@ -329,7 +336,7 @@ begin
   if resetuj then
   begin
     for i := 0 to Length(fLicznikAkcji) - 1 do fLicznikAkcji[i] := 0;
-    fResetujAPM := False; // not resetuj;
+    fResetujAPM := False;
   end;
 end;
 
@@ -505,12 +512,17 @@ begin
   end;
 end;
 
+procedure TCzatTwitcha.WyslijWiadomosc(const tresc: AnsiString);
+begin
+  fIdIRC.Say('#' + fLogin, String(tresc));
+end;
+
 constructor TCzatTwitcha.Create;
 var
   ini: TINIFile;
 begin
   inherited Create;
-  ini := TINIFile.Create(GetCurrentDir + '\ShittyPlugin.ini');
+  ini := TINIFile.Create(GetCurrentDir + '\ShittyPluginDwaKropkaZero.ini');
   try
     fLogin := ini.ReadString('ShittyPlugin', 'TwitchLogin', '');
     fHaslo := ini.ReadString('ShittyPlugin', 'TwitchHaslo', '');
