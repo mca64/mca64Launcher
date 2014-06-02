@@ -69,25 +69,25 @@ const
     lossless: '"Bezstratna kompresja obrazu"'; streamin: 'Strumieniuj na Twitch'; opoznienie: 'Opóźnienie:';);
 
   /// /////////////////////////////   ENGLISH
-  angielski: TJezyk = (AV2: 'Time:'; AV3: 'Size:'; AV4: 'Dropped frames:'; AV5: 'Bitrate:'; AV6: 'Frames per second:'; AV7: 'Upload:';
+  angielski: TJezyk = (AV2: 'Time:'; AV3: 'Size:'; AV4: 'Dropped frames:'; AV5: 'Bitrate:'; AV6: 'FPS:'; AV7: 'Upload:';
     glosnosc: 'Volume control (CTRL + UP/DOWN)'; f1: 'Disable F1'; pause: 'PAUSE for pause/resume game'; altshift: 'Disable ALT + SHIFT';
-    zagubione: 'Fix "lost" keyboard input'; zapora: 'Add exception to Windows firewall'; znaki: 'Change the character set';
+    zagubione: 'Fix "lost" keyboard input'; zapora: 'Windows Firewall exception'; znaki: 'Change the character set';
     skrin: 'Screenshot (CTRL + ALT + P)'; sprawdzLatency: 'Check latency'; daneKonta: 'Account settings:';
     ustawieniaCzatu: 'Chat settings:'; ustawieniaStrumnieniowania: 'Streaming settings:'; ustawieniaKonta: 'Channel settings:';
-    ustawGre: 'Set game: "StarCraft: Brood War"'; ustawOpis: 'Set description:'; listaWidzow: 'List of viewers'; Pogrubienie: 'Bold';
+    ustawGre: 'Set game: "StarCraft: Brood War"'; ustawOpis: 'Set description:'; listaWidzow: 'Viewers'; Pogrubienie: 'Bold';
     bnCzat: 'Battle.net chat'; sprawdzanieAktualizacji: 'Check for updates'; nagrywajLokalnie: 'Local recording'; caps: 'Disable CAPS LOCK';
     jump: 'Winamp jump to file'; wyswietl: 'Display in game:'; funkcje: 'Functions:'; kbHook: 'Keyboard hook';
-    listStrumieni: 'Update list of streams'; guiUniemozliwi: 'GUIfixes prevents You join on official Blizzard servers';
-    listaGraczy: 'List of players'; jKoreanski: 'Support for Korean language in game'; track: 'Song information';
-    au1: 'OAuth should be generated here:'; au2: 'This should looks like this: '; au3: 'next copy paste all text.'; sekundy: 'seconds';
+    listStrumieni: 'Update list of streams'; guiUniemozliwi: 'GUIfixes prevents you from joining official Battle.net servers';
+    listaGraczy: 'Players'; jKoreanski: 'Support for Korean in game'; track: 'Song information';
+    au1: 'OAuth should be generated here:'; au2: 'This should look like this: '; au3: 'next copy paste all text.'; sekundy: 'seconds';
     dyskTwardy: 'Save to disk'; wysylanieWToku: 'Streaming on Twitch...'; zakonczoneNiepo: 'Streaming on Twitch failed';
     wybierzAkcje: 'Choose action for user '; uprawienia: 'Promote to moderator'; tymczasowyBan: 'Ban temporarily';
-    zbanuj: 'Ban permanently'; cofUpr: 'Demote moderator'; listaOP: 'Show a list of all moderators'; odbanuj: 'Reverse ban';
+    zbanuj: 'Ban permanently'; cofUpr: 'Demote moderator'; listaOP: 'Moderators'; odbanuj: 'Unban';
     pobierzKlucz: 'Download stream key and save settings'; priorytet: 'Higher priority for StarCraft';
     trwaPobieranieKlucza: 'Downloading stream key...'; opuscil: 'Parts:'; dolaczyl: 'Joins:'; polaczono: 'Connected with';
     rozlaczono: 'Disconnected from'; fishiInne: 'Fish and others'; naprawKolory: 'Color fix'; emulacjaDD: 'DirectDraw emulation';
-    upnp: 'UPnP (port forwarding)'; bramki: 'Battle.net gateways'; wmode: 'StarCraft in window mode'; start: 'Start';
-    powiadomienie: 'Notification sounds'; jezyk: 'Language:'; pokazLog: 'Show log'; sprawdzTrase: 'Trace route:'; pokazKraj: 'Show country';
+    upnp: 'UPnP'; bramki: 'Battle.net Gateways'; wmode: 'Window Mode'; start: 'Start';
+    powiadomienie: 'Notification sounds'; jezyk: 'Language:'; pokazLog: 'Show log'; sprawdzTrase: 'Traceroute:'; pokazKraj: 'Show country';
     hosty: 'Resolve host name'; pokazKlucz: 'Show CD Key'; startCam: 'Start:'; stopCam: 'Stop:'; lobby: 'Lobby:'; lobbyPrzed: 'Game lobby:';
     wGrze: 'In game:'; odtwarzajDz: 'Play sound:'; kanal: 'Channel:'; polacz: 'Connect'; polaczony: 'Connected'; rozlacz: 'Disconnect';
     konfiguruj: 'Configure'; liczbaWidzow: 'Viewers:'; pokazCzas: 'Show time'; pokazWeWy: 'Show joins/parts'; wyslij: 'Send';
@@ -99,14 +99,14 @@ const
     predkosc: 'Mouse speed'; overlay: 'Overlay'; czasGry: 'Game time'; czas: 'Time'; trybObs: 'Obs mode'; czatTwitcha: 'Twitch chat';
     apm: 'APM'; winamp: 'Winamp / AIMP'; autoreplay: 'Autoreplay'; ukryjPasek: 'Hide replay progress bar';
     usunLimit: 'Remove replay slot limit'; wyswietlZdjecie: 'Display picture'; autor: 'Author:'; kontakt: 'Contact:';
-    dataBuildu: 'Build time:'; wersja: 'Version:'; podziekowania: 'Special thanks for help in creation of this program go to:';
-    wykorzystano: 'This program uses the following binary files from third parties:'; logowanie: 'Automatically logon'; dodaj: 'Add';
+    dataBuildu: 'Build time:'; wersja: 'Version:'; podziekowania: 'Special thanks for helping create this program to:';
+    wykorzystano: 'This program uses the following third-party files:'; logowanie: 'Automatically login'; dodaj: 'Add';
     usun: 'Delete'; zapisujCzatBn: 'Save Battle.net chat'; czcionka: 'Change font (Battle.net)'; czcionkaDomyslna: 'Restore font';
     otworzKatalog: 'Open directory with recordings'; aero: 'Windows Aero'; trwaNagrywanie: 'Recording:'; wiadomosci: 'Messages';
     jednAt: 'Unit dealing damage:'; jednPrzy: 'Unit taking damage:'; rasa: 'Race:'; jednostka: 'Unit:'; upAtak: 'Attack upgrade:';
     upArmory: 'Armor upgrade:'; oblicz: 'Calculate'; obrazenia: 'Damage:'; kalkulator: 'Calculator'; aktywuj: 'Activate';
-    blokada: 'Disable Windows keys'; wsparciePolski: 'Support for Polish language in game'; update: 'New version is out';
-    update2: 'Do You want to open download page?'; schowek: 'Minimize to tray'; dialog_uruchomiona: 'Application is already running!';
+    blokada: 'Disable Windows keys'; wsparciePolski: 'Support for Polish language in game'; update: 'New version is available';
+    update2: 'Do you want to open download page?'; schowek: 'Minimize to tray'; dialog_uruchomiona: 'Application is already running!';
     lossless: '"Lossless video compression"'; streamin: 'Stream on Twitch'; opoznienie: 'Delay:';);
 
   /// /////////////////////////////   UKRAINIAN
