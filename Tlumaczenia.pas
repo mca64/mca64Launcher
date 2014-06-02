@@ -21,7 +21,7 @@ type
   end;
 
 const
-  /// /////////////////////////////   POLISH
+  /// ///////////////////////////// POLISH
   polski: TJezyk = (AV2: 'Czas:'; AV3: 'Rozmiar:'; AV4: 'Pominięte klatki:'; AV5: 'Przepływność bitów:'; AV6: 'Klatki na sekundę:';
     AV7: 'Wysyłanie:'; glosnosc: 'Kontrola głośności (CTRL + GÓRA/DÓŁ)'; f1: 'Zablokuj klawisz F1';
     pause: 'Klawisz PAUSE do pauzy/wznowienia gry'; altshift: 'Zablokuj klawisze ALT + SHIFT';
@@ -68,7 +68,7 @@ const
     schowek: 'Minimalizacja programu do zasobnika'; dialog_uruchomiona: 'Aplikacja jest już uruchomiona!';
     lossless: '"Bezstratna kompresja obrazu"'; streamin: 'Strumieniuj na Twitch'; opoznienie: 'Opóźnienie:';);
 
-  /// /////////////////////////////   ENGLISH
+  /// ///////////////////////////// ENGLISH
   angielski: TJezyk = (AV2: 'Time:'; AV3: 'Size:'; AV4: 'Dropped frames:'; AV5: 'Bitrate:'; AV6: 'FPS:'; AV7: 'Upload:';
     glosnosc: 'Volume control (CTRL + UP/DOWN)'; f1: 'Disable F1'; pause: 'PAUSE for pause/resume game'; altshift: 'Disable ALT + SHIFT';
     zagubione: 'Fix "lost" keyboard input'; zapora: 'Windows Firewall exception'; znaki: 'Change the character set';
@@ -108,8 +108,8 @@ const
     blokada: 'Disable Windows keys'; wsparciePolski: 'Support for Polish language in game'; update: 'New version is available';
     update2: 'Do you want to open download page?'; schowek: 'Minimize to tray'; dialog_uruchomiona: 'Application is already running!';
     lossless: '"Lossless video compression"'; streamin: 'Stream on Twitch'; opoznienie: 'Delay:';);
-
-  /// /////////////////////////////   UKRAINIAN
+    
+  /// ///////////////////////////// UKRAINIAN
   ukrainski: TJezyk = ( // theleo_ua
     AV2: 'Тривалість:'; AV3: 'Розмір:'; AV4: 'Пропущено кадрів:'; AV5: 'Бітрейт:'; AV6: 'Кадрів у секунду:'; AV7: 'Завантажити:';
     glosnosc: 'Гучність (CTRL + UP/DOWN)'; f1: 'Блокувати клавішу F1'; pause: 'Кл. PAUSE припиняє/відновлює гру';
@@ -157,7 +157,7 @@ const
     schowek: 'Мінімізувати у трей'; dialog_uruchomiona: 'Application is already running!'; lossless: '"Стиснення відео без утрат"';
     streamin: 'Стримити на Twitch'; opoznienie: 'Затримка:';);
 
-  /// /////////////////////////////   RUSSIAN
+  /// ///////////////////////////// RUSSIAN
   rosyjski: TJezyk = ( // defiler.ru o4ko,DreamJunkie,Tassadar,Neo,Burjuigovno
     AV2: 'Длительность:'; AV3: 'Размер:'; AV4: 'Пропущено кадров:'; AV5: 'Битрейт:'; AV6: 'Кадров в секунду:'; AV7: 'Загрузить:';
     glosnosc: 'Громкость (CTRL + UP/DOWN)'; f1: 'Блокировать клавишу F1'; pause: 'Кл. PAUSE приост./возобн. игру';
@@ -205,7 +205,7 @@ const
     schowek: 'Минимизировать в трей'; dialog_uruchomiona: 'Application is already running!'; lossless: '"Сжатие видео без потерь"';
     streamin: 'Стримить на Twitch'; opoznienie: 'Задержка:';);
 
-  /// /////////////////////////////   SPANISH
+  /// ///////////////////////////// SPANISH
   hiszpanski: TJezyk = ( // Arca(Crema)
     AV2: 'Time:'; AV3: 'Size:'; AV4: 'Dropped frames:'; AV5: 'Bitrate:'; AV6: 'Frames per second:'; AV7: 'Upload:';
     glosnosc: 'Volume control (CTRL + UP/DOWN)'; f1: 'Disable F1'; pause: 'PAUSE for pause/resume game'; altshift: 'Disable ALT + SHIFT';
@@ -219,7 +219,7 @@ const
     guiUniemozliwi: 'GUIfixes prevents You join on official Blizzard servers'; listaGraczy: 'Lista de jugadores';
     jKoreanski: 'Soporte de corean dentro de la partida'; track: 'Información de la canción'; au1: 'OAuth deberia generarse aquí:';
     au2: 'Esto debería ser así: '; au3: 'Ahora copia y pega todo el texto.'; sekundy: 'segundos'; dyskTwardy: 'Guardar en disco';
-    wysylanieWToku: 'Streaming en Twitch...'; zakonczoneNiepo: 'Streaming en Twitch se detuvo por un fallo    ';
+    wysylanieWToku: 'Streaming en Twitch...'; zakonczoneNiepo: 'Streaming en Twitch se detuvo por un fallo ';
     wybierzAkcje: 'Elija acción para el usuario '; uprawienia: 'Ascender a moderador'; tymczasowyBan: 'Ben temporal';
     zbanuj: 'Ban permanente'; cofUpr: 'Remover moderator'; listaOP: 'Muestra una lista de todos los moderadores'; odbanuj: 'Deshacer ban';
     pobierzKlucz: 'Descargar clave del stream y guardar la configuración'; priorytet: 'Darle una prioridad mayor al StarCraft';
@@ -237,7 +237,7 @@ const
     autoPolaczenie: 'Conectar automaticamente al empezar'; zapisz: 'Guardar'; maxBitrate: 'Tasa de Bits máxima:';
     rodzajPrzeplywnosci: 'Método de codificación:'; stala: 'Constante (CBR)'; zmienna: 'Variable (VBR)'; przeplywnosc: 'Tasa de Bits:';
     kanaly: 'Canales:'; czestoliwosc: 'Tasa de muestreo:'; wartosc: 'Valor:'; predkosc: 'Cambiar la velocidad del ratón';
-    overlay: 'Mostrar  el superposición'; czasGry: 'Tiempo del juego'; czas: 'Hora'; trybObs: 'Modo observador'; czatTwitcha: 'Twitch chat';
+    overlay: 'Mostrar el superposición'; czasGry: 'Tiempo del juego'; czas: 'Hora'; trybObs: 'Modo observador'; czatTwitcha: 'Twitch chat';
     apm: 'APM'; winamp: 'Winamp / AIMP'; autoreplay: 'Auto-replay'; ukryjPasek: 'Esconder la barra de progreso del replay';
     usunLimit: 'Remover límite de slots para replays'; wyswietlZdjecie: 'Display picture'; autor: 'Autor:'; kontakt: 'Contacto:';
     dataBuildu: 'Tiempo:'; // de Construcción:';
@@ -253,7 +253,7 @@ const
     dialog_uruchomiona: 'La aplicación ya está funcionando!'; lossless: '"Compression de video Lossless"'; streamin: 'Stream e Twitch';
     opoznienie: 'Retraso:';);
 
-  /// /////////////////////////////   GERMAN
+  /// ///////////////////////////// GERMAN
   niemiecki: TJezyk = ( // freak,cryoc, enjoyme, iCCup.dAmn
     AV2: 'Zeit:'; AV3: 'Größe:'; AV4: 'Bildverluste:'; AV5: 'Bitrate:'; AV6: 'Bilder pro Sekunde:'; AV7: 'Upload:';
     glosnosc: 'Lautstärke (CTRL + UP/DOWN)'; f1: 'Deaktiviere F1'; pause: 'PAUSE um pause/starten des Spiels';
@@ -300,48 +300,48 @@ const
     dialog_uruchomiona: 'Anwendung läuft bereits!'; lossless: '"Verlustfreie Video Kompression"'; streamin: 'Streamen auf Twitch';
     opoznienie: 'Verzögerung:';);
 
- /// ///////////////////////////// FRENCH
+  /// ///////////////////////////// FRENCH
   francuski: TJezyk = (AV2: 'Temps:'; AV3: 'Taille:'; AV4: 'Images perdues:'; AV5: 'Bitrate:'; AV6: 'FPS:'; AV7: 'Upload:';
     glosnosc: 'Contrôle du Volume (CTRL + HAUT/BAS)'; f1: 'F1 Hors Fonction'; pause: 'PAUSE pour suspendre/reprendre la partie'; altshift: 'ALT + SHIFT Hors fonction';
     zagubione: 'Fix "lost" keyboard input'; zapora: 'Exception du pare-feu Windows'; znaki: 'Change the character set';
-    skrin: 'Capture d'écran (CTRL + ALT + P)'; sprawdzLatency: 'Controle de la latence'; daneKonta: 'Paramètre du compte:';
+    skrin: 'Capture d''écran (CTRL + ALT + P)'; sprawdzLatency: 'Controle de la latence'; daneKonta: 'Paramètre du compte:';
     ustawieniaCzatu: 'Paramètre du Chat:'; ustawieniaStrumnieniowania: 'Paramètre de diffusion:'; ustawieniaKonta: 'Paramètre du canal:';
     ustawGre: 'Selectionner le jeu: "StarCraft: Brood War"'; ustawOpis: 'Selectionner la description:'; listaWidzow: 'Spectateurs'; Pogrubienie: 'Gras';
     bnCzat: 'Discussion Battle.net'; sprawdzanieAktualizacji: 'Vérification des mises à jour'; nagrywajLokalnie: 'Enregistrement local'; caps: 'CAPS LOCK hors fonction';
     jump: 'Winamp: Aller au fichier'; wyswietl: 'Affichage en jeu:'; funkcje: 'Fonctions:'; kbHook: 'Keyboard hook';
     listStrumieni: 'Mettre à jour la liste des diffusions'; guiUniemozliwi: 'GUIfixes vous empêche de rejoindre les serveurs officiel Battle.net';
-    listaGraczy: 'Joueurs'; jKoreanski: 'Assistance pour le koréen en partie; track: 'Information de la chanson';
+    listaGraczy: 'Joueurs'; jKoreanski: 'Assistance pour le koréen en partie'; track: 'Information de la chanson';
     au1: 'OAuth devrais être générer ici:'; au2: 'Ceci devrait ressembgler à cela: '; au3: 'next copy paste all text.'; sekundy: 'secondes';
-    dyskTwardy: 'Enregistrer sur le disque dur'; wysylanieWToku: 'Diffuser sur Twitch...'; zakonczoneNiepo: 'La diffusion sur Twitch a échouée;
-    wybierzAkcje: 'Choisir une fonction pour l'utilisation'; uprawienia: 'Promouvoir comme modérateur'; tymczasowyBan: 'Bannir temporairement';
+    dyskTwardy: 'Enregistrer sur le disque dur'; wysylanieWToku: 'Diffuser sur Twitch...'; zakonczoneNiepo: 'La diffusion sur Twitch a échouée';
+    wybierzAkcje: 'Choisir une fonction pour l''utilisation'; uprawienia: 'Promouvoir comme modérateur'; tymczasowyBan: 'Bannir temporairement';
     zbanuj: 'Ban permanent'; cofUpr: 'Destituer de modérateur'; listaOP: 'Modérateurs'; odbanuj: 'Enlever le ban';
     pobierzKlucz: 'Télécharger la clé de stream et sauvegarder les paramètres'; priorytet: 'StarCraft en prioritée haute';
     trwaPobieranieKlucza: 'Téléchargement de la clé de stream...'; opuscil: 'Parties:'; dolaczyl: 'Rejoindre:'; polaczono: 'Connecter avec';
     rozlaczono: 'Déconnecter de'; fishiInne: 'Fish et autres'; naprawKolory: 'Fixation des couleurs'; emulacjaDD: 'Emulation DirectDraw';
     upnp: 'UPnP'; bramki: 'Portails Battle.net'; wmode: 'Mode fenétrer'; start: 'Démarrer';
     powiadomienie: 'Notifications sonore'; jezyk: 'Langue:'; pokazLog: 'Afficher le journal'; sprawdzTrase: 'Traceroute:'; pokazKraj: 'Afficher le pays';
-    hosty: 'Résoudre le nom de l'hôte'; pokazKlucz: 'Montrer la clé CD'; startCam: 'Démarrer:'; stopCam: 'Arrêter:'; lobby: 'Lobby:'; lobbyPrzed: 'Lobby en jeu:';
+    hosty: 'Résoudre le nom de l''hôte'; pokazKlucz: 'Montrer la clé CD'; startCam: 'Démarrer:'; stopCam: 'Arrêter:'; lobby: 'Lobby:'; lobbyPrzed: 'Lobby en jeu:';
     wGrze: 'En partie:'; odtwarzajDz: 'Jouer le son:'; kanal: 'Canal:'; polacz: 'Connection'; polaczony: 'Connecter'; rozlacz: 'Déconnecter';
-    konfiguruj: 'Configurer'; liczbaWidzow: 'Spectateurs:'; pokazCzas: 'Afficher l'heure'; pokazWeWy: 'Afficher spectateurs joignent/quitte le stream'; wyslij: 'Envoyer';
+    konfiguruj: 'Configurer'; liczbaWidzow: 'Spectateurs:'; pokazCzas: 'Afficher l''heure'; pokazWeWy: 'Afficher spectateurs joignent/quitte le stream'; wyslij: 'Envoyer';
     rozne: 'Divers'; nagrywanie: 'Enregistrement'; dotacje: 'Donation'; oProgramie: 'A propos'; uVideo: 'Dispositif vidéo:'; uAudio: 'Dispositif audio:';
-    kodekVideo: 'Compréssion de la vidéo:'; kodekAudio: 'Compréssion de l'audio:'; podglad: 'Prévisualisation'; nagrywaj: 'Enregistrement'; tLogin: 'Identifiant:';
+    kodekVideo: 'Compréssion de la vidéo:'; kodekAudio: 'Compréssion de l''audio:'; podglad: 'Prévisualisation'; nagrywaj: 'Enregistrement'; tLogin: 'Identifiant:';
     tHaslo: 'Mot de passe:'; domyslnyKanal: 'Canal par défault:'; zapiszCzat: 'Enregistrer la discution'; autoPolaczenie: 'Connection automatique au démarrage';
-    zapisz: 'Enregistrer'; maxBitrate: 'Bitrate maximum:'; rodzajPrzeplywnosci: 'Méthode d'encodage:'; stala: 'Constant (CBR)';
+    zapisz: 'Enregistrer'; maxBitrate: 'Bitrate maximum:'; rodzajPrzeplywnosci: 'Méthode d''encodage:'; stala: 'Constant (CBR)';
     zmienna: 'Variable (VBR)'; przeplywnosc: 'Bitrate:'; kanaly: 'Canaux:'; czestoliwosc: 'Sample rate:'; wartosc: 'Valeur:';
-    predkosc: 'Vitesse de la souris'; overlay: 'Overlay'; czasGry: 'Temps de jeu'; czas: 'Heure'; trybObs: 'Mode d'observation'; czatTwitcha: 'Chat Twitch';
+    predkosc: 'Vitesse de la souris'; overlay: 'Overlay'; czasGry: 'Temps de jeu'; czas: 'Heure'; trybObs: 'Mode d''observation'; czatTwitcha: 'Chat Twitch';
     apm: 'APM'; winamp: 'Winamp / AIMP'; autoreplay: 'Autoreplay'; ukryjPasek: 'Caché la barre de progréssion du replay';
-    usunLimit: 'Enlever la limite de slot du replay'; wyswietlZdjecie: 'Afficher l'image'; autor: 'Auteur:'; kontakt: 'Contact:';
+    usunLimit: 'Enlever la limite de slot du replay'; wyswietlZdjecie: 'Afficher l''image'; autor: 'Auteur:'; kontakt: 'Contact:';
     dataBuildu: 'Build time:'; wersja: 'Version:'; podziekowania: 'Special thanks for helping create this program to:';
     wykorzystano: 'Ce programme utilise les fichier-tiers suivants:'; logowanie: 'Connection automatique'; dodaj: 'Ajouter';
     usun: 'Delete'; zapisujCzatBn: 'Save Battle.net chat'; czcionka: 'Change font (Battle.net)'; czcionkaDomyslna: 'Restore font';
     otworzKatalog: 'Ouvrir le fichier de récéption des enregistrements'; aero: 'Windows Aero'; trwaNagrywanie: 'Enregistrement:'; wiadomosci: 'Messages';
     jednAt: 'Dégâts des unitées:'; jednPrzy: 'Unitées recevant des dégâts:'; rasa: 'Race:'; jednostka: 'Unitée:'; upAtak: 'Amélioration d'attaque:';
-    upArmory: 'Amélioration d'aarmure'; oblicz: 'Calcule'; obrazenia: 'Dégâts:'; kalkulator: 'Calculateur'; aktywuj: 'Activer';
+upArmory: 'Amélioration d'aarmure'; oblicz: 'Calcule'; obrazenia: 'Dégâts:'; kalkulator: 'Calculateur'; aktywuj: 'Activer';
     blokada: 'Windows keys hors fonction'; wsparciePolski: 'Assistance pour la langue Polonaise en jeu'; update: 'Une nouvelle version est disponible';
-    update2: 'Voulez vous ouvrir la page de téléchargement ?'; schowek: 'Minimisez'; dialog_uruchomiona: 'L'application est déjà activé!';
+    update2: 'Voulez vous ouvrir la page de téléchargement ?'; schowek: 'Minimisez'; dialog_uruchomiona: 'L''application est déjà activé!';
     lossless: '"Compression vidéo sans perte"'; streamin: 'Diffusion sur Twitch'; opoznienie: 'Delai:';);
 
-  /// /////////////////////////////   HUNGARIAN
+  /// ///////////////////////////// HUNGARIAN
   wegierski: TJezyk = ( // Breach
     AV2: 'Time:'; AV3: 'Size:'; AV4: 'Dropped frames:'; AV5: 'Bitrate:'; AV6: 'Frames per second:'; AV7: 'Upload:';
     glosnosc: 'Volume control (CTRL + UP/DOWN)'; f1: 'Disable F1'; pause: 'PAUSE for pause/resume game'; altshift: 'Disable ALT + SHIFT';
@@ -383,7 +383,7 @@ const
     update2: 'Do You want to open download page?'; schowek: 'Minimize to tray'; dialog_uruchomiona: 'Application is already running!';
     lossless: '"Lossless video compression"'; streamin: 'Stream on Twitch'; opoznienie: 'Delay:';);
 
-  /// /////////////////////////////   PORTUGEESE
+  /// ///////////////////////////// PORTUGEESE
   portugalski: TJezyk = ( // fabiano
     AV2: 'Time:'; AV3: 'Size:'; AV4: 'Dropped frames:'; AV5: 'Bitrate:'; AV6: 'Frames per second:'; AV7: 'Upload:';
     glosnosc: 'Volume control (CTRL + UP/DOWN)'; f1: 'Disable F1'; pause: 'PAUSE for pause/resume game'; altshift: 'Disable ALT + SHIFT';
@@ -427,7 +427,7 @@ const
     update2: 'Do You want to open download page?'; schowek: 'Minimize to tray'; dialog_uruchomiona: 'Application is already running!';
     lossless: '"Lossless video compression"'; streamin: 'Stream on Twitch'; opoznienie: 'Delay:';);
 
-  /// /////////////////////////////   CROATIAN
+  /// ///////////////////////////// CROATIAN
   chorwacki: TJezyk = ( // Quirinus
     AV2: 'Vrijeme:'; AV3: 'Veličina:'; AV4: 'Propali frameovi:'; AV5: 'Bitrate:'; AV6: 'Frameova u sekundi:'; AV7: 'Upload:';
     glosnosc: 'Kontrola glasnoće (CTRL + UP/DOWN)'; f1: 'Onemogući F1'; pause: 'PAUSE za pauzirat/nastavit igru';
@@ -472,7 +472,7 @@ const
     dialog_uruchomiona: 'Aplikacija je već pokrenuta!'; lossless: '"Video kompresija bez gubitaka"'; streamin: 'Streamaj na Twitchu';
     opoznienie: 'Odgoda:';);
 
-  /// /////////////////////////////   KOREAN
+  /// ///////////////////////////// KOREAN
   koreanski: TJezyk = ( // iCCup.ryuikan
     AV2: '시간:'; AV3: '사이즈:'; AV4: '드롭 프레임:'; AV5: '비트레이트:'; AV6: '초당 프레임:'; AV7: '업로드:'; glosnosc: '볼륨 조절 (CTRL + UP/DOWN)'; f1: 'F1 비활성화';
     pause: '정지/재개를 위한 PAUSE'; altshift: '비활성화 ALT + SHIFT'; zagubione: 'Fix "lost" keyboard input'; zapora: '윈도우 방화벽에 예외 사항으로 설정';
@@ -505,7 +505,7 @@ const
     wsparciePolski: '폴란드어 지원하기 (게임내)'; update: '새로운 버젼이 나왔습니다'; update2: '새 버젼을 다운 받으시겠습니까?'; schowek: '트레이창으로 최소화';
     dialog_uruchomiona: '해당 앱이 실행중입니다'; lossless: '"손실없는 비디오 압축"'; streamin: '트위치에서 방송'; opoznienie: '지연:';);
 
-  /// /////////////////////////////   GREEK
+  /// ///////////////////////////// GREEK
   grecki: TJezyk = ( // ffswowsucks
     AV2: 'Time:'; AV3: 'Size:'; AV4: 'Dropped frames:'; AV5: 'Bitrate:'; AV6: 'Frames per second:'; AV7: 'Upload:';
     glosnosc: 'Volume control (CTRL + UP/DOWN)'; f1: 'Disable F1'; pause: 'PAUSE for pause/resume game'; altshift: 'Disable ALT + SHIFT';
