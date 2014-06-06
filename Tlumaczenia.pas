@@ -234,10 +234,10 @@ const
     zapisz: 'Guardar'; maxBitrate: 'Máximo bitrate:'; rodzajPrzeplywnosci: 'Método de codifiación:'; stala: 'Constante (CBR)'; 
     zmienna: 'Variable (VBR)'; przeplywnosc: 'Bitrate:'; kanaly: 'Canales:'; czestoliwosc: 'Frecuencia de muestra:'; wartosc: 'Valor:'; 
     predkosc: 'Velocidad del mouse'; overlay: 'Overlay'; czasGry: 'Tiempo de la partida'; czas: 'Hora'; trybObs: 'Modo observador'; czatTwitcha: 'Twitch chat'; 
-    apm: 'APM'; winamp: 'Winamp / AIMP'; autoreplay: 'Autoreplay'; ukryjPasek: 'Esconder la barra de progreso en las replays'; 
+    apm: 'APM'; winamp: 'Winamp / AIMP'; autoreplay: 'Autoreplay'; ukryjPasek: 'Hide replay progress bar'; 
     usunLimit: 'Eliminar límite de posiciones para replays'; wyswietlZdjecie: 'Mostrar imagen'; autor: 'Autor:'; kontakt: 'Contacto:'; 
-    dataBuildu: 'Fecha de finalización:'; wersja: 'Version:'; podziekowania: ' Gracias especiales por la ayuda en la creación de este programa van para:'; 
-    wykorzystano: 'Este programa utilizar los siguientes archivos binarios de terceras partes:'; logowanie: 'Conectar automáticamente'; dodaj: 'Añadir'; 
+    dataBuildu: 'Fecha de finalización:'; wersja: 'Version:'; podziekowania: 'Special thanks for help in creation of this program go to:'; 
+    wykorzystano: 'This program uses the following binary files from third parties:'; logowanie: 'Conectar automáticamente'; dodaj: 'Añadir'; 
     usun: 'Delete'; zapisujCzatBn: 'Save Battle.net chat'; czcionka: 'Cambiar fuente (Battle.net)'; czcionkaDomyslna: 'Restablecer fuente'; 
     otworzKatalog: 'Abrir la carpeta con las grabaciones'; aero: 'Windows Aero'; trwaNagrywanie: 'Grabando:'; wiadomosci: 'Mensajes'; 
     jednAt: 'Unidad generando daño:'; jednPrzy: 'Unidad recibiendo daño:'; rasa: 'Raza:'; jednostka: 'Unidad:'; upAtak: 'Mejora de ataque:'; 
@@ -417,9 +417,9 @@ const
     zmienna: 'Variável (VBR)'; przeplywnosc: 'Taxa de bits:'; kanaly: 'Canais:'; czestoliwosc: 'Taxa de amostra:'; wartosc: 'Valor:';
     predkosc: 'Mudar sensibilidade do mouse'; overlay: 'Mostrar overlay'; czasGry: 'Tempo do jogo'; czas: 'Horário';
     trybObs: 'Modo observador'; czatTwitcha: 'Twitch chat'; apm: 'APM'; winamp: 'Winamp / AIMP'; autoreplay: 'Autoreplay';
-    ukryjPasek: 'Esconder barra de progresso do replay'; usunLimit: 'Remover limite de slots para replays';
+    ukryjPasek: 'Hide replay progress bar'; usunLimit: 'Remover limite de slots para replays';
     wyswietlZdjecie: 'Mostrar foto'; autor: 'Autor:'; kontakt: 'Contato:'; dataBuildu: 'Hora:'; wersja: 'Versão:';
-    podziekowania: 'Agradecimentos especiais no desenvolvimento deste programa para:';
+    podziekowania: 'Special thanks for help in creation of this program go to:';
     wykorzystano: 'Este programa utiliza binários dos seguintes terceiros:'; logowanie: 'Logar automaticamente'; dodaj: 'Adicionar';
     usun: 'Deletar'; zapisujCzatBn: 'Salvar chat da Battle.net'; czcionka: 'Mudar fonte (Battle.net)'; czcionkaDomyslna: 'Restaurar fonte';
     otworzKatalog: 'Abrir diretório com as gravações'; aero: 'Windows Aero'; trwaNagrywanie: 'Gravação:'; wiadomosci: 'Mensagens';
