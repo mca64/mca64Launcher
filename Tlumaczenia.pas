@@ -208,7 +208,7 @@ const
  /// /////////////////////////////   SPANISH 
   hiszpanski: TJezyk = (AV2: 'Hora:'; AV3: 'Tamaño:'; AV4: 'Frames perdidos:'; AV5: 'Bitrate:'; AV6: 'Frames por segundo:'; AV7: 'Subir:'; 
     glosnosc: 'Control del volumen (CTRL + UP/DOWN)'; f1: 'Desactivar F1'; pause: 'PAUSA para pausar/continuar el juego'; altshift: 'Desactivar ALT + SHIFT'; 
-    zagubione: 'Arreglar problema de teclas introducidas “perdidas” '; zapora: 'Añadir excepción al firewall de Windows'; znaki: 'Cambiar el set de caracteres'; 
+    zagubione: 'Fix "lost" keyboard input'; zapora: 'Añadir excepción al firewall de Windows'; znaki: 'Cambiar el set de caracteres'; 
     skrin: 'Screenshot (CTRL + ALT + P)'; sprawdzLatency: 'Comprobar latencia'; daneKonta: 'Ajustes de cuenta:'; 
     ustawieniaCzatu: 'Ajustes del chat:'; ustawieniaStrumnieniowania: 'Streaming settings:'; ustawieniaKonta: 'Ajustes de canal:'; 
     ustawGre: 'Fijar juego: "StarCraft: Brood War"'; ustawOpis: 'Set description:'; listaWidzow: 'Espectadores'; Pogrubienie: 'Negrita'; 
@@ -236,7 +236,7 @@ const
     predkosc: 'Velocidad del mouse'; overlay: 'Overlay'; czasGry: 'Tiempo de la partida'; czas: 'Hora'; trybObs: 'Modo observador'; czatTwitcha: 'Twitch chat'; 
     apm: 'APM'; winamp: 'Winamp / AIMP'; autoreplay: 'Autoreplay'; ukryjPasek: 'Hide replay progress bar'; 
     usunLimit: 'Eliminar límite de posiciones para replays'; wyswietlZdjecie: 'Mostrar imagen'; autor: 'Autor:'; kontakt: 'Contacto:'; 
-    dataBuildu: 'Fecha de finalización:'; wersja: 'Version:'; podziekowania: 'Special thanks for help in creation of this program go to:'; 
+    dataBuildu: 'Build time:'; wersja: 'Version:'; podziekowania: 'Special thanks for help in creation of this program go to:'; 
     wykorzystano: 'This program uses the following binary files from third parties:'; logowanie: 'Conectar automáticamente'; dodaj: 'Añadir'; 
     usun: 'Delete'; zapisujCzatBn: 'Save Battle.net chat'; czcionka: 'Cambiar fuente (Battle.net)'; czcionkaDomyslna: 'Restablecer fuente'; 
     otworzKatalog: 'Abrir la carpeta con las grabaciones'; aero: 'Windows Aero'; trwaNagrywanie: 'Grabando:'; wiadomosci: 'Mensajes'; 
@@ -254,7 +254,7 @@ const
     altshift: 'Deaktiviere ALT + SHIFT'; zagubione: 'Fix "lost" Tastatureingabe'; zapora: 'Ausnahme für die Windows Firewall einfügen';
     znaki: 'Zeichensatz wechseln'; skrin: 'Screenshot (CTRL + ALT + P)'; sprawdzLatency: 'Verzögerung checken';
     daneKonta: 'Account Einstellungen:'; ustawieniaCzatu: 'Chat Einstellungen:'; ustawieniaStrumnieniowania: 'Streaming Einstellungen:';
-    ustawieniaKonta: 'Channel Einstellungen:'; ustawGre: 'Spiel auf: "StarCraft: Brood War" setzen"'; ustawOpis: 'Beschreibung setzen:';
+    ustawieniaKonta: 'Channel Einstellungen:'; ustawGre: 'Set game: "StarCraft: Brood War"'; ustawOpis: 'Beschreibung setzen:';
     listaWidzow: 'Liste der Zuschauer'; Pogrubienie: 'Fett'; bnCzat: 'Battle.net Chat'; sprawdzanieAktualizacji: 'Updates prüfen';
     nagrywajLokalnie: 'Lokale-Aufnahme'; caps: 'CAPS LOCK deaktivieren'; jump: 'Springe zu Winamp Datei'; wyswietl: 'Anzeige im Spiel:';
     funkcje: 'Funktionen:'; kbHook: 'Tastatur Haken'; listStrumieni: 'Liste der Streams';
