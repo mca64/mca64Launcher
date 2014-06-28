@@ -166,13 +166,13 @@ const
     daneKonta: 'Настройки аккаунта:'; ustawieniaCzatu: 'Настройки чата:'; ustawieniaStrumnieniowania: 'Настройки стриминга:';
     ustawieniaKonta: 'Настройки канала:'; ustawGre: 'Выбрать игру: "StarCraft: Brood War"'; ustawOpis: 'Добавить описание:';
     listaWidzow: 'Список зрителей'; Pogrubienie: 'Жирный'; bnCzat: 'Чат Battle.net'; sprawdzanieAktualizacji: 'Проверить обновления';
-    nagrywajLokalnie: 'Сохранить локально'; caps: 'Отключить CAPS LOCK'; jump: 'Winamp jump to file'; wyswietl: 'Показывать в игре:';
+    nagrywajLokalnie: 'Сохранить локально'; caps: 'Отключить CAPS LOCK'; jump: 'Winamp - перейти к файлу'; wyswietl: 'Показывать в игре:';
     funkcje: 'Функции:'; kbHook: 'Доступ к клавиатуре'; listStrumieni: 'Список стримов';
-    guiUniemozliwi: 'GUIfixes prevents You join on official Blizzard servers'; listaGraczy: 'Список игроков';
+    guiUniemozliwi: 'GUIfixes не позволяет вам подсоединяться к официальным серверам Blizzard'; listaGraczy: 'Список игроков';
     jKoreanski: 'Поддержка корейского языка в игре'; track: 'Инфо о песне'; au1: 'Здесь должен быть сгенерирован OAuth:';
     // au2 : 'Это должно выглядеть примерно так: ';
-    au2: 'This should looks like this: '; au3: 'next copy paste all text.'; sekundy: 'секунды'; dyskTwardy: 'Сохранить на диск';
-    wysylanieWToku: 'Идет стрим на Twitch...'; zakonczoneNiepo: 'Стрим на Twitch остановлен с ошибкой';
+    au2: 'Это должно выглядеть следующим образом:'; au3: 'далее скопируйте и вставьте весь текст'; sekundy: 'секунды';
+    dyskTwardy: 'Сохранить на диск'; wysylanieWToku: 'Идет стрим на Twitch...'; zakonczoneNiepo: 'Стрим на Twitch остановлен с ошибкой';
     wybierzAkcje: 'Выберите действие для пользователя '; uprawienia: 'Повысить до модератора'; tymczasowyBan: 'Временно забанить';
     zbanuj: 'Забанить навсегда'; cofUpr: 'Снять привилегии модератора'; listaOP: 'Показать список всех модераторов'; odbanuj: 'Разбанить';
     pobierzKlucz: 'Скачать ключ stream и сохранить настройки'; priorytet: 'Уст. высокий приоритет для StarCraft';
@@ -193,16 +193,16 @@ const
     kanaly: 'Каналы:'; czestoliwosc: 'Частота дискретизации:'; wartosc: 'Значение:'; predkosc: 'Изменить чувствительность мыши';
     overlay: 'Отображать оверлей'; czasGry: 'Длительность игры'; czas: 'Время'; trybObs: 'Зрительский режим'; czatTwitcha: 'Чат Twitch’a';
     apm: 'APM'; winamp: 'Winamp / AIMP'; autoreplay: 'Сохранять реплеи автоматически'; ukryjPasek: 'Спрятать ползунок в реплее';
-    usunLimit: 'Убрать ограничение слотов в реплее'; wyswietlZdjecie: 'Display picture'; autor: 'Автор:'; kontakt: 'Контакты:';
+    usunLimit: 'Убрать ограничение слотов в реплее'; wyswietlZdjecie: 'Отображать картинку'; autor: 'Автор:'; kontakt: 'Контакты:';
     dataBuildu: 'Время сборки:'; wersja: 'Версия:'; podziekowania: 'Special thanks for help in creation of this program go to:';
-    wykorzystano: 'This program uses the following binary files from third parties:'; logowanie: 'Подключаться автоматически';
+    wykorzystano: 'Эта программа использует следующие сторонние бинарные файлы:'; logowanie: 'Подключаться автоматически';
     dodaj: 'Добавить'; usun: 'Удалить'; zapisujCzatBn: 'Сохранить чат'; czcionka: 'Сменить шрифт (Battle.net)';
     czcionkaDomyslna: 'Восстановить шрифт'; otworzKatalog: 'Открыть папку с видеозаписями'; aero: 'Windows Aero';
     trwaNagrywanie: 'Идет запись:'; wiadomosci: 'Сообщения'; jednAt: 'Юнит наносит урон:'; jednPrzy: 'Юнит получает урон:'; rasa: 'Раса:';
     jednostka: 'Юнит:'; upAtak: 'Апгрейд атаки:'; upArmory: 'Апгрейд брони:'; oblicz: 'Посчитать'; obrazenia: 'Урон:';
     kalkulator: 'Калькулятор'; aktywuj: 'Активировать'; blokada: 'Отключить клавишу "Windows"';
     wsparciePolski: 'Поддержка польского языка в игре'; update: 'Вышла новая версия'; update2: 'Открыть страницу загрузки?';
-    schowek: 'Минимизировать в трей'; dialog_uruchomiona: 'Application is already running!'; lossless: '"Сжатие видео без потерь"';
+    schowek: 'Минимизировать в трей'; dialog_uruchomiona: 'Приложение уже запущено!'; lossless: '"Сжатие видео без потерь"';
     streamin: 'Стримить на Twitch'; opoznienie: 'Задержка:';);
 
   /// /////////////////////////////   SPANISH
