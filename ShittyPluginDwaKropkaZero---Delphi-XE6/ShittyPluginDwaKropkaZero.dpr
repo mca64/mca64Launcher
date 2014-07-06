@@ -485,18 +485,23 @@ function TCzatTwitcha.Polacz: boolean;
 begin
   Result := False;
   if Gra then ShittyPlugin.BW_Tekst(#4'<ShittyPlugin> '#7'Próba ponownego połączenia z czatem Twitcha...');
-  try
     fIdIRC := TIdIRC.Create(nil);
     fIdIRC.OnPrivateMessage := NowaWiadomosc;
     fIdIRC.UserMode := [];
-    fIdIRC.Host := 'irc.twitch.tv';
+    fIdIRC.Host := '199.9.250.229';
     fIdIRC.Nickname := fLogin;
     fIdIRC.Password := fHaslo;
+  try
     fIdIRC.Connect;
     fIdIRC.Join('#' + fLogin);
     fIdIRC.IOHandler.DefStringEncoding := IndyTextEncoding_UTF8();
     Result := True;
   except
+    fIdIRC.Host := 'irc.twitch.tv';
+    fIdIRC.Connect;
+    fIdIRC.Join('#' + fLogin);
+    fIdIRC.IOHandler.DefStringEncoding := IndyTextEncoding_UTF8();
+    Result := True;
   end;
 end;
 
