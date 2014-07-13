@@ -1,10 +1,10 @@
 SetCompressor /FINAL /SOLID LZMA
 ShowInstDetails "show"
 ShowUninstDetails "show"
-!define WERSJA "1.8.9.69"
+!define WERSJA "1.8.9.89"
 !define VERSIONMAJOR 1
 !define VERSIONMINOR 8
-;!define VERSIONBUILD 9.69
+;!define VERSIONBUILD 9.89
 !define HELPURL "mailto:mca640@gmail.com"
 !define UPDATEURL "http://9rax.com/mca64/download.php"
 !define ABOUTURL "http://9rax.com/mca64/mca64Launcher.htm" 
@@ -219,4 +219,5 @@ section "uninstall"
 	RMDir "$INSTDIR"
 	DeleteRegKey HKLM "Software\mca64Launcher"
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}"
+	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Run\mca64Launcher ${WERSJA}"
 sectionEnd
