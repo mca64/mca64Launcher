@@ -7,6 +7,6 @@ Aktualna wersja: 1.8.9.89 (21 VI 2014)
 .zip: http://www.mediafire.com/?p4o72z5xeowopgm
 
 ![Alt text](http://i.imgur.com/xwZjbrk.png)
-![Alt text](http://i.imgur.com/byafi6h.png)
+![Alt text](http://i.imgur.com/Rf9fbHj.png)
 ![Alt text](http://i.imgur.com/2xyS3Du.png)
 ![Alt text](http://i.imgur.com/AdtylA4.png)
