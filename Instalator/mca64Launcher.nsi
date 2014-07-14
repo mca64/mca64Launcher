@@ -125,7 +125,7 @@ section "install"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}" "URLInfoAbout" "$\"${ABOUTURL}$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}" "DisplayVersion" "${WERSJA}"
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}" "VersionMajor" ${VERSIONMAJOR}
-	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}}" "VersionMinor" ${VERSIONMINOR}
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}" "VersionMinor" ${VERSIONMINOR}
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}" "NoModify" 1
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}" "NoRepair" 1
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}" "EstimatedSize" ${ROZMIAR}
@@ -219,5 +219,5 @@ section "uninstall"
 	RMDir "$INSTDIR"
 	DeleteRegKey HKLM "Software\mca64Launcher"
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\mca64Launcher ${WERSJA}"
-	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Run\mca64Launcher ${WERSJA}"
+	DeleteRegValue HKLM "Software\Microsoft\Windows\CurrentVersion\Run\" "mca64Launcher ${WERSJA}"
 sectionEnd
