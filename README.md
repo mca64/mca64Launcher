@@ -1,4 +1,4 @@
-Aktualna wersja: 1.8.9.90 (13 VII 2014)
+Aktualna wersja: 1.8.9.91 (14 VII 2014)
 
 .exe: http://9rax.com/mca64/download.php
 
@@ -6,7 +6,7 @@ Aktualna wersja: 1.8.9.90 (13 VII 2014)
 
 .zip: http://www.mediafire.com/?p4o72z5xeowopgm
 
-![Alt text](http://i.imgur.com/xwZjbrk.png)
+![Alt text](http://i.imgur.com/I1ao1zJ.png)
 ![Alt text](http://i.imgur.com/Rf9fbHj.png)
-![Alt text](http://i.imgur.com/2xyS3Du.png)
+![Alt text](http://i.imgur.com/t3VpfAY.png)
 ![Alt text](http://i.imgur.com/AdtylA4.png)
