@@ -1,10 +1,10 @@
 SetCompressor /FINAL /SOLID LZMA
 ShowInstDetails "show"
 ShowUninstDetails "show"
-!define WERSJA "1.8.9.91"
+!define WERSJA "1.8.9.99"
 !define VERSIONMAJOR 1
 !define VERSIONMINOR 8
-;!define VERSIONBUILD 9.91
+;!define VERSIONBUILD 9.99
 !define HELPURL "mailto:mca640@gmail.com"
 !define UPDATEURL "http://9rax.com/mca64/download.php"
 !define ABOUTURL "http://9rax.com/mca64/mca64Launcher.htm" 
