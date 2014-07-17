@@ -1,14 +1,14 @@
 SetCompressor /FINAL /SOLID LZMA
 ShowInstDetails "show"
 ShowUninstDetails "show"
-!define WERSJA "1.8.9.99"
+!define WERSJA "1.9.6.4"
 !define VERSIONMAJOR 1
-!define VERSIONMINOR 8
-;!define VERSIONBUILD 9.99
+!define VERSIONMINOR 9
+;!define VERSIONBUILD 6.4
 !define HELPURL "mailto:mca640@gmail.com"
 !define UPDATEURL "http://9rax.com/mca64/download.php"
 !define ABOUTURL "http://9rax.com/mca64/mca64Launcher.htm" 
-!define ROZMIAR 58452
+!define ROZMIAR 58456
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES\mca64Launcher\mca64Launcher ${WERSJA}"
 LicenseData "mca64Launcher ${WERSJA}\licencja.txt"
