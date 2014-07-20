@@ -50,7 +50,6 @@ end;
 
 function Patchuj(const pId: cardinal; const jezyk: integer): boolean; stdcall;
 begin
-  Result := False;
   adresBazowy := PobierzAdresBazowy(pId);
   hProces := OpenProcess(PROCESS_ALL_ACCESS, False, pId);
   try
@@ -124,6 +123,7 @@ begin
       ZapiszTekstDoPamieci($46938, 'Hack');
       ZapiszTekstDoPamieci($46988, 'Spoofer   ');
     end;
+    Result := True;
   finally
     CloseHandle(hProces);
   end;
@@ -134,4 +134,3 @@ exports
 
 begin
 end.
-
