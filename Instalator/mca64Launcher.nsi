@@ -1,14 +1,14 @@
 SetCompressor /FINAL /SOLID LZMA
 ShowInstDetails "show"
 ShowUninstDetails "show"
-!define WERSJA "1.9.6.4"
+!define WERSJA "1.9.9.9"
 !define VERSIONMAJOR 1
 !define VERSIONMINOR 9
-;!define VERSIONBUILD 6.4
+;!define VERSIONBUILD 9.9
 !define HELPURL "mailto:mca640@gmail.com"
 !define UPDATEURL "http://9rax.com/mca64/download.php"
 !define ABOUTURL "http://9rax.com/mca64/mca64Launcher.htm" 
-!define ROZMIAR 58456
+!define ROZMIAR 64594
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES\mca64Launcher\mca64Launcher ${WERSJA}"
 LicenseData "mca64Launcher ${WERSJA}\licencja.txt"
@@ -77,6 +77,7 @@ section "install"
 	File "mca64Launcher ${WERSJA}\VideoNagrywanie.dll"
 	File "mca64Launcher ${WERSJA}\wDetector.ini"
 	File "mca64Launcher ${WERSJA}\wDetector.w"
+	File "mca64Launcher ${WERSJA}\wDetectorPatch.dll"	
 	;File "mca64Launcher ${WERSJA}\wDPatch.txt"
 	File "mca64Launcher ${WERSJA}\Wiadomosc.wav"
 	File "mca64Launcher ${WERSJA}\wLauncher.exe"
@@ -185,6 +186,7 @@ section "uninstall"
 	Delete "$INSTDIR\VideoNagrywanie.dll"
 	Delete "$INSTDIR\wDetector.ini"
 	Delete "$INSTDIR\wDetector.w"
+	Delete "$INSTDIR\wDetectorPatch.dll"	
 	Delete "$INSTDIR\wDPatch.txt"
 	Delete "$INSTDIR\Wiadomosc.wav"
 	Delete "$INSTDIR\wLauncher.exe"
