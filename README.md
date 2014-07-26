@@ -1,4 +1,4 @@
-Aktualna wersja: 1.9.9.9 (24 VII 2014)
+Aktualna wersja: 1.9.9.9 (26 VII 2014)
 
 .exe: http://9rax.com/mca64/download.php
 
