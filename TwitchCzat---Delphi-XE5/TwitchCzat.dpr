@@ -67,7 +67,7 @@ var
 procedure TGlownyWatek.Execute;
 var
   rejestr: TRegistry;
-  twitchLogin, twitchHaslo, Polacz: string;
+  twitchLogin, twitchHaslo, polaczUst: string;
   odebraneDane: TOdbierzODShittyPlugin;
 begin
   Sleep(5000);
@@ -77,51 +77,48 @@ begin
     rejestr.OpenKey('SOFTWARE\mca64Launcher\ShittyPlugin\', False);
     twitchLogin := rejestr.ReadString('TwitchLogin');
     twitchHaslo := rejestr.ReadString('TwitchHaslo');
-    Polacz := rejestr.ReadString('Twitch'); // = '-1' then Exit;
+    polaczUst := rejestr.ReadString('Twitch');
   finally
     rejestr.Free;
   end;
-  if (Polacz = '-1') and (twitchLogin <> '') and (twitchHaslo <> '') then
+  if (polaczUst = '-1') and (twitchLogin <> '') and (twitchHaslo <> '') then
       czatTwitcha := TCzatTwitcha.Create(twitchLogin, twitchHaslo, '#' + twitchLogin)
   else Exit;
   idKomendyG := 0;
   while not Terminated do
   begin
-    if Assigned(czatTwitcha) then
+    ImportDanych(@odebraneDane);
+    if odebraneDane.idKomendy > idKomendyG then
     begin
-      ImportDanych(@odebraneDane);
-      if odebraneDane.idKomendy > idKomendyG then
-      begin
-        case odebraneDane.komenda of
-          1:
-            begin
-              try
-                FreeAndNil(czatTwitcha);
-                if odebraneDane.kanal <> '' then
-                    czatTwitcha := TCzatTwitcha.Create(twitchLogin, twitchHaslo, '#' + String(odebraneDane.kanal))
-                else czatTwitcha := TCzatTwitcha.Create(twitchLogin, twitchHaslo, '#' + twitchLogin)
-              except
-              end;
+      idKomendyG := idKomendyG + 1;
+      case odebraneDane.komenda of
+        1:
+          begin
+            try
+              if czatTwitcha <> nil then FreeAndNil(czatTwitcha);
+              if odebraneDane.kanal <> '' then
+                  czatTwitcha := TCzatTwitcha.Create(twitchLogin, twitchHaslo, '#' + String(odebraneDane.kanal))
+              else czatTwitcha := TCzatTwitcha.Create(twitchLogin, twitchHaslo, '#' + twitchLogin)
+            except
             end;
-          2:
-            begin
-              try
-                FreeAndNil(czatTwitcha)
-              except
-              end;
-            end;
-        end;
-        idKomendyG := idKomendyG + 1;
-      end
-      else
-      begin
-        if odebraneDane.idWiadomosci > idWiadomosciG then
-        begin
-          try
-            czatTwitcha.fIdIRC.Say(czatTwitcha.pKanal, String(odebraneDane.wiadomosc));
-          finally
-            idWiadomosciG := idWiadomosciG + 1;
           end;
+        2:
+          begin
+            try
+              if czatTwitcha <> nil then FreeAndNil(czatTwitcha);
+            except
+            end;
+          end;
+      end;
+    end
+    else
+    begin
+      if odebraneDane.idWiadomosci > idWiadomosciG then
+      begin
+        try
+          if czatTwitcha <> nil then czatTwitcha.fIdIRC.Say(czatTwitcha.pKanal, String(odebraneDane.wiadomosc));
+        finally
+          idWiadomosciG := idWiadomosciG + 1;
         end;
       end;
     end;
@@ -143,10 +140,10 @@ begin
     fIdIRC := TIdIRC.Create(nil);
     fIdIRC.OnPrivateMessage := NowaWiadomosc;
     fIdIRC.OnRaw := MySugarIsRaw;
-    fIdIRC.OnNicknamesListReceived := ListaUzytkownikow;
-    fIdIRC.OnPart := WyjscieUzytkownika;
-    fIdIRC.OnConnected := Polaczono;
-    fIdIRC.OnJoin := WejscieUzytkownika;
+    { fIdIRC.OnNicknamesListReceived := ListaUzytkownikow;
+      fIdIRC.OnPart := WyjscieUzytkownika;
+      fIdIRC.OnConnected := Polaczono;
+      fIdIRC.OnJoin := WejscieUzytkownika; }
     fIdIRC.UserMode := [];
     fIdIRC.Host := '199.9.250.229';
     fIdIRC.Nickname := fLogin; // 'mca64';
@@ -249,8 +246,18 @@ begin
       nick := AnsiString(czatTwitcha.pNick);
       iloscWiadomosci := iloscWiadomosciG;
       udanePolaczenie := czatTwitcha.pUdanePolaczenie;
-    end;
+    end
   end
+  else
+  begin
+    with dane^ do
+    begin
+      wiadomosc := '';
+      nick := '';
+      iloscWiadomosci := iloscWiadomosciG;
+      udanePolaczenie := False;
+    end;
+  end;
 end;
 
 exports
