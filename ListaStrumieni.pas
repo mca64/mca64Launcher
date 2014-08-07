@@ -18,7 +18,6 @@ type
     procedure AktualizaujListView;
     function SnipealotRasaGracza(const bonjwa: string): integer;
     function ModyfikacjaInfa(const kanal: string): TStringiTablica;
-    { Private declarations }
   protected
     procedure Execute; override;
   public
