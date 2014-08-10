@@ -111,9 +111,41 @@ type
     function Stop: HRESULT; stdcall;
   end;
 
+function DomyslneUrzadzenie(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
+function DomyslneUrzadzenieKomunikacyjne(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
+function IMMDeviceNaTekst(const urzadzenie: IMMDevice): String;
 function FormatUrzadzeniaAudio(const urzadzenie: IMMDevice): TIntegerTablica;
 
 implementation
+
+function DomyslneUrzadzenie(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
+var
+  urzadzenie: IMMDevice;
+  urzedzenieEnumerator: IMMDeviceEnumerator;
+begin
+  CoCreateInstance(CLASS_IMMDeviceEnumerator, nil, CLSCTX_ALL, IID_IMMDeviceEnumerator, urzedzenieEnumerator);
+  if urzedzenieEnumerator.GetDefaultAudioEndpoint(odtwarzanieCzyNagrywanie, eConsole, urzadzenie) = ERROR_SUCCESS then Result := urzadzenie;
+end;
+
+function DomyslneUrzadzenieKomunikacyjne(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
+var
+  urzadzenie: IMMDevice;
+  urzedzenieEnumerator: IMMDeviceEnumerator;
+begin
+  CoCreateInstance(CLASS_IMMDeviceEnumerator, nil, CLSCTX_ALL, IID_IMMDeviceEnumerator, urzedzenieEnumerator);
+  if urzedzenieEnumerator.GetDefaultAudioEndpoint(odtwarzanieCzyNagrywanie, eCommunications, urzadzenie) = ERROR_SUCCESS then
+      Result := urzadzenie;
+end;
+
+function IMMDeviceNaTekst(const urzadzenie: IMMDevice): String;
+var
+  ustawienia: IPropertyStore;
+  pv: TPropVariant;
+begin
+  urzadzenie.OpenPropertyStore(STGM_READ, ustawienia);
+  ustawienia.GetValue(PKEY_Device_FriendlyName, pv);
+  Result := pv.pwszVal;
+end;
 
 function FormatUrzadzeniaAudio(const urzadzenie: IMMDevice): TIntegerTablica;
 var
@@ -125,12 +157,13 @@ begin
     urzadzenie.OpenPropertyStore(STGM_READ, ustawienia);
     ustawienia.GetValue(PKEY_AudioEngine_DeviceFormat, pv);
     pFormat := pv.blob.pBlobData;
-    SetLength(Result, 4);
+    SetLength(Result, 5);
     Result[0] := pFormat.Format.nChannels;
     Result[1] := pFormat.Format.nSamplesPerSec;
     Result[2] := pFormat.Samples.wValidBitsPerSample;
     Result[3] := pFormat.Format.nAvgBytesPerSec;
     Result[4] := pFormat.Format.wBitsPerSample;
+    CoTaskMemFree(pFormat);
   except
   end;
 end;
