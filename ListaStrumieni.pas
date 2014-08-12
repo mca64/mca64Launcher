@@ -3,7 +3,7 @@ unit ListaStrumieni;
 interface
 
 uses
-  System.Classes, IdHTTP, IdSSLOpenSSL, DBXJSON, Vcl.ComCtrls, SysUtils, StrUtils, System.DateUtils, System.TimeSpan, Vcl.ExtCtrls;
+  System.Classes, IdHTTP, IdSSLOpenSSL, DBXJSON, Vcl.ComCtrls, SysUtils, StrUtils, System.DateUtils, System.TimeSpan, Vcl.ExtCtrls, Windows;
 
 type
   TStringiTablica = array [0 .. 1] of string;
@@ -184,26 +184,28 @@ begin
       end;
       fLv.Visible := true;
       fLv.Items.EndUpdate;
-      try
-        for i := 0 to Length(listaKanalowPo) - 1 do
-        begin
-          nowyStrumien := true;
-          for j := 0 to Length(listaKanalowPrzed) - 1 do
-            if listaKanalowPo[i] = listaKanalowPrzed[j] then nowyStrumien := False;
-          if nowyStrumien then
+      if Form1.CheckBox68.checked then // Pop Your Balloon
+        try
+          for i := 0 to Length(listaKanalowPo) - 1 do
           begin
-            if tekstChmurka = '' then tekstChmurka := listaKanalowPo[i]
-            else tekstChmurka := tekstChmurka + ' ,' + listaKanalowPo[i]
+            nowyStrumien := true;
+            for j := 0 to Length(listaKanalowPrzed) - 1 do
+              if listaKanalowPo[i] = listaKanalowPrzed[j] then nowyStrumien := False;
+            if nowyStrumien then
+            begin
+              if tekstChmurka = '' then tekstChmurka := listaKanalowPo[i]
+              else tekstChmurka := tekstChmurka + ' ,' + listaKanalowPo[i]
+            end;
           end;
+          if (tekstChmurka <> '') and (PobierzNazweKlasyAktywnegoOkna(GetForeGroundWindow) <> 'SDlgDialog') and
+            (PobierzNazweKlasyAktywnegoOkna(GetForeGroundWindow) <> 'SWarClass') then
+          begin
+            fTi.BalloonTitle := 'Strumień';
+            fTi.BalloonHint := tekstChmurka;
+            fTi.ShowBalloonHint;
+          end;
+        except
         end;
-        if tekstChmurka <> '' then
-        begin
-          fTi.BalloonTitle := 'Strumień';
-          fTi.BalloonHint := tekstChmurka;
-          fTi.ShowBalloonHint;
-        end;
-      except
-      end;
       fPb.Position := 0;
       fPb.Visible := False;
     end)
@@ -248,20 +250,24 @@ var
   poczatekKanalu: integer;
   temp: string;
 begin
-  for i := 0 to fBazaDanych.Count - 1 do
-  begin
-    poczatekKanalu := PosEx(' ', fBazaDanych.Strings[i], 4);
-    temp := LowerCase(copy(fBazaDanych.Strings[i], poczatekKanalu + 1, Length(fBazaDanych.Strings[i]) - poczatekKanalu + 1));
-    if temp = kanal then
+  try
+    for i := 0 to fBazaDanych.Count - 1 do
     begin
-      Result[0] := copy(fBazaDanych.Strings[i], 4, poczatekKanalu - 4);
-      if temp = LowerCase(Result[0]) then Result[0] := fWyswietlanaNazwaKanalu[j];
-      Result[1] := copy(fBazaDanych.Strings[i], 1, 1);
-      exit;
+      poczatekKanalu := PosEx(' ', fBazaDanych.Strings[i], 4);
+      temp := LowerCase(copy(fBazaDanych.Strings[i], poczatekKanalu + 1, Length(fBazaDanych.Strings[i]) - poczatekKanalu + 1));
+      if temp = kanal then
+      begin
+        Result[0] := copy(fBazaDanych.Strings[i], 4, poczatekKanalu - 4);
+        if temp = LowerCase(Result[0]) then Result[0] := fWyswietlanaNazwaKanalu[j];
+        Result[1] := copy(fBazaDanych.Strings[i], 1, 1);
+        exit;
+      end;
     end;
+    Result[0] := fWyswietlanaNazwaKanalu[j]; // + ' Dodaj mnie ';
+    Result[1] := '4';
+  except
+
   end;
-  Result[0] := 'Dodaj mnie ' + fWyswietlanaNazwaKanalu[j];
-  Result[1] := '4';
 end;
 
 end.
