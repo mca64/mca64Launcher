@@ -114,17 +114,24 @@ type
 function DomyslneUrzadzenie(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
 function DomyslneUrzadzenieKomunikacyjne(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
 function IMMDeviceNaTekst(const urzadzenie: IMMDevice): String;
+function IdUrzadzeniaNaTekst(const id: PWideChar): string;
 function FormatUrzadzeniaAudio(const urzadzenie: IMMDevice): TIntegerTablica;
 
 implementation
+
+uses launcher;
 
 function DomyslneUrzadzenie(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
 var
   urzadzenie: IMMDevice;
   urzedzenieEnumerator: IMMDeviceEnumerator;
 begin
-  CoCreateInstance(CLASS_IMMDeviceEnumerator, nil, CLSCTX_ALL, IID_IMMDeviceEnumerator, urzedzenieEnumerator);
-  if urzedzenieEnumerator.GetDefaultAudioEndpoint(odtwarzanieCzyNagrywanie, eConsole, urzadzenie) = ERROR_SUCCESS then Result := urzadzenie;
+  try
+    CoCreateInstance(CLASS_IMMDeviceEnumerator, nil, CLSCTX_ALL, IID_IMMDeviceEnumerator, urzedzenieEnumerator);
+    if urzedzenieEnumerator.GetDefaultAudioEndpoint(odtwarzanieCzyNagrywanie, eConsole, urzadzenie) = ERROR_SUCCESS then
+        Result := urzadzenie;
+  except
+  end
 end;
 
 function DomyslneUrzadzenieKomunikacyjne(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
@@ -132,9 +139,12 @@ var
   urzadzenie: IMMDevice;
   urzedzenieEnumerator: IMMDeviceEnumerator;
 begin
-  CoCreateInstance(CLASS_IMMDeviceEnumerator, nil, CLSCTX_ALL, IID_IMMDeviceEnumerator, urzedzenieEnumerator);
-  if urzedzenieEnumerator.GetDefaultAudioEndpoint(odtwarzanieCzyNagrywanie, eCommunications, urzadzenie) = ERROR_SUCCESS then
-      Result := urzadzenie;
+  try
+    CoCreateInstance(CLASS_IMMDeviceEnumerator, nil, CLSCTX_ALL, IID_IMMDeviceEnumerator, urzedzenieEnumerator);
+    if urzedzenieEnumerator.GetDefaultAudioEndpoint(odtwarzanieCzyNagrywanie, eCommunications, urzadzenie) = ERROR_SUCCESS then
+        Result := urzadzenie;
+  except
+  end
 end;
 
 function IMMDeviceNaTekst(const urzadzenie: IMMDevice): String;
@@ -142,9 +152,24 @@ var
   ustawienia: IPropertyStore;
   pv: TPropVariant;
 begin
-  urzadzenie.OpenPropertyStore(STGM_READ, ustawienia);
-  ustawienia.GetValue(PKEY_Device_FriendlyName, pv);
-  Result := pv.pwszVal;
+  try
+    urzadzenie.OpenPropertyStore(STGM_READ, ustawienia);
+    ustawienia.GetValue(PKEY_Device_FriendlyName, pv);
+    Result := pv.pwszVal;
+  except
+  end
+end;
+
+function IdUrzadzeniaNaTekst(const id: PWideChar): string;
+var
+  urzadzenie: IMMDevice;
+  urzedzenieEnumerator: IMMDeviceEnumerator;
+begin
+  try
+    CoCreateInstance(CLASS_IMMDeviceEnumerator, nil, CLSCTX_ALL, IID_IMMDeviceEnumerator, urzedzenieEnumerator);
+    if urzedzenieEnumerator.GetDevice(id, urzadzenie) = ERROR_SUCCESS then Result := IMMDeviceNaTekst(urzadzenie);
+  except
+  end
 end;
 
 function FormatUrzadzeniaAudio(const urzadzenie: IMMDevice): TIntegerTablica;
