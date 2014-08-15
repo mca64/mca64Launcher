@@ -107,20 +107,22 @@ begin
       name := channel.Get('name').JsonValue as TJSONString;
       updated_at := channel.Get('updated_at').JsonValue as TJSONString;
       url := channel.Get('url').JsonValue as TJSONString;
-      status := channel.Get('status').JsonValue as TJSONString;
+      try
+        status := channel.Get('status').JsonValue as TJSONString;
+        fOpisKanalu[i] := status.Value;
+      except
+        fOpisKanalu[i] := '';
+      end;
       views := channel.Get('views').JsonValue as TJSONString;
       display_name := channel.Get('display_name').JsonValue as TJSONString;
-
       fLiczbaWidzow[i] := viewers.Value;
       fDataUtworzeniaKonta[i] := created_at.Value;
       fLiczbaSledzacych[i] := followers.Value;
       fNazwaKanalu[i] := name.Value;
       fDataAktualizacjiKanalu[i] := updated_at.Value;
       fURL[i] := url.Value;
-      fOpisKanalu[i] := status.Value;
       fLiczbaOdwiedzin[i] := views.Value;
       fWyswietlanaNazwaKanalu[i] := display_name.Value;
-
       t1 := StrToDateTime(fDataAktualizacjiKanalu[i], fu);
       t2 := TTimeZone.Local.ToUniversalTime(Now);
       d := trunc(t2 - t1);
