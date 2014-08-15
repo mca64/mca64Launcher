@@ -1,14 +1,14 @@
 SetCompressor /FINAL /SOLID LZMA
 ShowInstDetails "show"
 ShowUninstDetails "show"
-!define WERSJA "1.9.9.9"
-!define VERSIONMAJOR 1
-!define VERSIONMINOR 9
-;!define VERSIONBUILD 9.9
+!define WERSJA "2.0.0.56"
+!define VERSIONMAJOR 2
+!define VERSIONMINOR 0
+;!define VERSIONBUILD 0.56
 !define HELPURL "mailto:mca640@gmail.com"
 !define UPDATEURL "http://9rax.com/mca64/download.php"
 !define ABOUTURL "http://9rax.com/mca64/mca64Launcher.htm" 
-!define ROZMIAR 64594
+!define ROZMIAR 60325
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES\mca64Launcher\mca64Launcher ${WERSJA}"
 LicenseData "mca64Launcher ${WERSJA}\licencja.txt"
@@ -43,6 +43,7 @@ section "install"
 	File "mca64Launcher ${WERSJA}\arch2"
 	File "mca64Launcher ${WERSJA}\AudioNagrywanie.dll"
 	File "mca64Launcher ${WERSJA}\AudioXP.dll"
+	File "mca64Launcher ${WERSJA}\AudioInfoXP.dll"
 	File "mca64Launcher ${WERSJA}\cp1250"
 	File "mca64Launcher ${WERSJA}\cyrylica"
 	File "mca64Launcher ${WERSJA}\ezhmm.dll"
@@ -152,6 +153,7 @@ section "uninstall"
 	Delete "$INSTDIR\arch2"
 	Delete "$INSTDIR\AudioNagrywanie.dll"
 	Delete "$INSTDIR\AudioXP.dll"
+	Delete "$INSTDIR\AudioInfoXP.dll"
 	Delete "$INSTDIR\cp1250"
 	Delete "$INSTDIR\cyrylica"
 	Delete "$INSTDIR\ezhmm.dll"
