@@ -1,7 +1,3 @@
--1  snipealot1
--1  snipealot2
--1  snipealot3
--1  snipealot4
 2  zolotoi. rgils
 1  Marwin ifumarwin
 1  TTF ifuttf
@@ -99,7 +95,7 @@
 2  Oops oopsmind
 1  Kolevgg kolevgg
 1  TetrisSC tetrissc
-2  LancerX must_die
+2  Bomjwa must_die
 0  SCSpeciaLisT scspecialist
 2  msc1c1ell msc1c1ell
 2  Emperor emperor_bg
@@ -111,7 +107,7 @@
 2  Tama reps_tama
 0  Nizzy aafnizzy
 0  Silius siliusone
-2  TT1 TT1
+2  TT1 tt1
 0  NiceMicro nicemicro
 1  Teletubbie teletubbiee
 0  PropheteGamings prophetegamings
@@ -212,7 +208,7 @@
 1  SlayerS_BoxioR slayers_boxior
 1  bwterran bwterran
 1  Cecilsunkure cecilsunkure
-0  jimborileydavis jimborileydavis
+0  rich jimborileydavis
 2  remag remag146
 0  vvongsifu vvongsifu
 2  frankcisco1986 frankcisco1986
@@ -247,7 +243,6 @@
 0  arraven arraven
 0  gamehard1 gamehard1
 0  raizouk raizouk
-1  bgvrtc bgvrtc
 0  Tazarro tazarro
 0  l_zoli l_zoli
 0  any2you any2you
@@ -263,4 +258,34 @@
 0  ng_marklar ng_marklar
 2  CheeTech jatojaa
 2  Mazur mazi_gn
+2  flex_sv flex_sv
+2  TaMo__ tamo__
+2  r4dzioo r4dzioo
+2  KycT srkyct
+1  Nudraga nudraga
+2  andiCR andicr
+2  tec27 tec27
+1  Cryoc cryoc
+0  yanisyns1 yanisyns1
+1  zoasty zoasty
+2  iwl_artanis iwl_artanis
+0  moreandmmore moreandmmore
+1  colinkrusechildking colinkrusechildking
+2  Tibertorius tibertorius
+0  psiletalis psiletalis
+2  ponakaattack ponakaattack
+0  aquallut aquallut
+1  AzNxAkaStephan aznxakastephan
+0  Holyrival holyrival
+4  bgvrtc bgvrtc
+0  webglgame webglgame
+1  sas.Pez saspez
+0  mari0nix mari0nix
+1  Flisk flisktroposphere
+0  sgt_fat sgt_fat
+0  mesijateam mesijateam
+0  maddoksvevo maddoksvevo
+0  blbd08 blbd08
+0  chobonet chobonet
+0  killermodeon killermodeon
 koniec
