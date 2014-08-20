@@ -119,7 +119,7 @@ function FormatUrzadzeniaAudio(const urzadzenie: IMMDevice): TIntegerTablica;
 
 implementation
 
-uses launcher;
+uses Launcher;
 
 function DomyslneUrzadzenie(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
 var
