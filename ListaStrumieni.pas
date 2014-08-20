@@ -3,7 +3,8 @@ unit ListaStrumieni;
 interface
 
 uses
-  System.Classes, IdHTTP, IdSSLOpenSSL, DBXJSON, Vcl.ComCtrls, SysUtils, StrUtils, System.DateUtils, System.TimeSpan, Vcl.ExtCtrls, Windows;
+  System.Classes, IdHTTP, IdSSLOpenSSL, DBXJSON, Vcl.ComCtrls, SysUtils, StrUtils, System.DateUtils, System.TimeSpan, Vcl.ExtCtrls, Windows,
+  Diagnostics;
 
 type
   TStringiTablica = array [0 .. 1] of string;
@@ -16,6 +17,7 @@ type
     fBazaDanych: TStringList;
     fPb: TProgressBar;
     fTi: TTrayIcon;
+    fPomiarCzasuPobrania, fPomiarCzasuReszty: TStopWatch;
     // fHinty : array of string;
     // function PobierzHinty(indeks: integer): string;
     function PobierzInformacjeTwitchAPI: boolean;
@@ -62,6 +64,7 @@ var
   d: integer;
   uplynelo: string;
 begin
+  fPomiarCzasuPobrania.Start;
   Synchronize(
     procedure
     begin
@@ -77,6 +80,8 @@ begin
     JSON := IdHTTP.Get('https://api.twitch.tv/kraken/streams?game=StarCraft:%20Brood%20War');
   finally
     IdHTTP.Free;
+    fPomiarCzasuPobrania.Stop;
+    fPomiarCzasuReszty.Start;
   end;
   jsonObiekt := TJSONObject.ParseJSONValue(JSON) as TJSONObject;
   try
@@ -196,7 +201,7 @@ begin
             if nowyStrumien then
             begin
               if tekstChmurka = '' then tekstChmurka := listaKanalowPo[i]
-              else tekstChmurka := tekstChmurka + ' ,' + listaKanalowPo[i]
+              else tekstChmurka := tekstChmurka + ', ' + listaKanalowPo[i]
             end;
           end;
           if (tekstChmurka <> '') and (PobierzNazweKlasyAktywnegoOkna(GetForeGroundWindow) <> 'SDlgDialog') and
@@ -226,6 +231,13 @@ end;
 procedure TListaStrumieni.Execute;
 begin
   if PobierzInformacjeTwitchAPI then AktualizaujListView;
+  fPomiarCzasuReszty.Stop;
+  Synchronize(
+    procedure
+    begin
+      DodajDoLogaAV('ListaStrumieni', IntToStr(fPomiarCzasuPobrania.ElapsedMilliseconds) + ' + ' +
+        IntToStr(fPomiarCzasuReszty.ElapsedMilliseconds) + ' [ms]');
+    end);
 end;
 
 function TListaStrumieni.SnipealotRasaGracza(const bonjwa: string): integer;
