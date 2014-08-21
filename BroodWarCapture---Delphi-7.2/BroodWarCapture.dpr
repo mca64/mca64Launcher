@@ -6,7 +6,7 @@ uses
   Graphics;
 {$R *.res}
 
-function SCBW_BitBlt(const destDC: HDC; const X, Y, width, height: integer; const srcDC: HDC; const xSrc, ySrc: integer; const rop: DWORD)
+function SCBW_BitBlt(const destDC: HDC; const x, y, width, height: integer; const srcDC: HDC; const xSrc, ySrc: integer; const rop: DWORD)
   : BOOL; stdcall;
 var
   bmp: Graphics.TBitmap;
@@ -15,10 +15,10 @@ begin
   try
     bmp.Monochrome := false;
     bmp.PixelFormat := pf32bit;
-    bmp.width := width;
-    bmp.height := height;
+    bmp.Width := width;
+    bmp.Height := height;
     BitBlt(bmp.Canvas.Handle, 0, 0, bmp.width, bmp.height, srcDC, 0, 0, SRCCOPY);
-    Result := BitBlt(destDC, X, Y, width, height, bmp.Canvas.Handle, xSrc, ySrc, rop);
+    Result := BitBlt(destDC, x, y, width, height, bmp.Canvas.Handle, xSrc, ySrc, rop);
   finally
     bmp.Free;
   end;
@@ -32,8 +32,8 @@ begin
   try
     bmp.Monochrome := false;
     bmp.PixelFormat := pf32bit;
-    bmp.width := GetDeviceCaps(DC, HORZRES);
-    bmp.height := GetDeviceCaps(DC, VERTRES);
+    bmp.Width := GetDeviceCaps(DC, HORZRES);
+    bmp.Height := GetDeviceCaps(DC, VERTRES);
     bmp.PixelFormat := pf32bit;
     Result := CreateCompatibleDC(bmp.Canvas.Handle);
   finally
@@ -49,8 +49,8 @@ begin
   try
     bmp.Monochrome := false;
     bmp.PixelFormat := pf32bit;
-    bmp.width := width;
-    bmp.height := height;
+    bmp.Width := width;
+    bmp.Height := height;
     Result := CreateCompatibleBitmap(bmp.Canvas.Handle, width, height);
   finally
     bmp.Free;
