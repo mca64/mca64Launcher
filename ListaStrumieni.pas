@@ -3,8 +3,9 @@ unit ListaStrumieni;
 interface
 
 uses
-  System.Classes, IdHTTP, IdSSLOpenSSL, DBXJSON, Vcl.ComCtrls, SysUtils, StrUtils, System.DateUtils, System.TimeSpan, Vcl.ExtCtrls, Windows,
-  Diagnostics;
+  System.Classes, IdHTTP, IdSSLOpenSSL, DBXJSON, Vcl.ComCtrls, SysUtils, StrUtils, System.DateUtils, System.TimeSpan, Vcl.ExtCtrls,
+  Windows {,
+    Diagnostics};
 
 type
   TStringiTablica = array [0 .. 1] of string;
@@ -17,7 +18,7 @@ type
     fBazaDanych: TStringList;
     fPb: TProgressBar;
     fTi: TTrayIcon;
-    fPomiarCzasuPobrania, fPomiarCzasuReszty: TStopWatch;
+    // fPomiarCzasuPobrania, fPomiarCzasuReszty: TStopWatch;
     // fHinty : array of string;
     // function PobierzHinty(indeks: integer): string;
     function PobierzInformacjeTwitchAPI: boolean;
@@ -64,8 +65,8 @@ var
   d: integer;
   uplynelo: string;
 begin
-  fPomiarCzasuPobrania.Start;
-  Synchronize(
+  // fPomiarCzasuPobrania.Start;
+  Queue(
     procedure
     begin
       fPb.Visible := true;
@@ -80,8 +81,8 @@ begin
     JSON := IdHTTP.Get('https://api.twitch.tv/kraken/streams?game=StarCraft:%20Brood%20War');
   finally
     IdHTTP.Free;
-    fPomiarCzasuPobrania.Stop;
-    fPomiarCzasuReszty.Start;
+    // fPomiarCzasuPobrania.Stop;
+    // fPomiarCzasuReszty.Start;
   end;
   jsonObiekt := TJSONObject.ParseJSONValue(JSON) as TJSONObject;
   try
@@ -231,13 +232,13 @@ end;
 procedure TListaStrumieni.Execute;
 begin
   if PobierzInformacjeTwitchAPI then AktualizaujListView;
-  fPomiarCzasuReszty.Stop;
-  Synchronize(
+  { fPomiarCzasuReszty.Stop;
+    Synchronize(
     procedure
     begin
-      DodajDoLogaAV('ListaStrumieni', IntToStr(fPomiarCzasuPobrania.ElapsedMilliseconds) + ' + ' +
-        IntToStr(fPomiarCzasuReszty.ElapsedMilliseconds) + ' [ms]');
-    end);
+    DodajDoLogaAV('ListaStrumieni', IntToStr(fPomiarCzasuPobrania.ElapsedMilliseconds) + ' + ' +
+    IntToStr(fPomiarCzasuReszty.ElapsedMilliseconds) + ' [ms]');
+    end); }
 end;
 
 function TListaStrumieni.SnipealotRasaGracza(const bonjwa: string): integer;
