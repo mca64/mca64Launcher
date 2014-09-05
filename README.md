@@ -1,6 +1,6 @@
 mca64Launcher is a tool for StarCraft: Brood War game.
 
-Current version: 2.0.0.103 (04 IX 2014)
+Current version: 2.0.0.104 (05 IX 2014)
 
 .exe/.rar/.zip: http://mca64.com
 
