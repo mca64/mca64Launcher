@@ -3,7 +3,8 @@ unit ListaStrumieni;
 interface
 
 uses
-  System.Classes, IdHTTP, IdSSLOpenSSL, DBXJSON, Vcl.ComCtrls, SysUtils, StrUtils, System.DateUtils, System.TimeSpan, Vcl.ExtCtrls,
+  System.Classes, IdHTTP, IdSSLOpenSSL, System.JSON, Vcl.ComCtrls, SysUtils, StrUtils,
+  System.DateUtils, System.TimeSpan, Vcl.ExtCtrls,
   Windows {,
     Diagnostics};
 
@@ -87,7 +88,7 @@ begin
   jsonObiekt := TJSONObject.ParseJSONValue(JSON) as TJSONObject;
   try
     streams := jsonObiekt.Get('streams').JsonValue as TJSONArray;
-    liczbaStrumieni := streams.Size;
+    liczbaStrumieni := streams.Count;
     SetLength(fLiczbaWidzow, liczbaStrumieni);
     SetLength(fDataUtworzeniaKonta, liczbaStrumieni);
     SetLength(fLiczbaSledzacych, liczbaStrumieni);
@@ -105,7 +106,7 @@ begin
     fu.TimeSeparator := ':';
     for i := 0 to liczbaStrumieni - 1 do
     begin
-      strumien := streams.Get(i) as TJSONObject;
+      strumien := streams.Items[i] as TJSONObject;
       viewers := strumien.Get('viewers').JsonValue as TJSONString;
       channel := strumien.Get('channel').JsonValue as TJSONObject;
       created_at := channel.Get('created_at').JsonValue as TJSONString;
@@ -186,7 +187,7 @@ begin
         end;
         listItem.SubItems.Add(fLiczbaWidzow[i]);
         listItem.SubItems.Add('');
-        listItem.SubItems.Add('');
+        listItem.SubItems.Add(IntToStr(i + 1));
         listItem.SubItems.Add(fNazwaKanalu[i]);
         listaKanalowPo[i] := fLv.Items[i].Caption;
       end;
