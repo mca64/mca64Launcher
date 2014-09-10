@@ -3,7 +3,7 @@ library gen_mca64launcher;
 {$WEAKLINKRTTI ON}
 
 uses
-  System.Classes, Messages, SySUtils, Windows, System.IOUtils, Registry;
+  System.Classes, Messages, SySUtils, Windows, System.IOUtils;
 
 type
 
@@ -49,6 +49,7 @@ const
   WM_WA_IPC = WM_USER;
   IPC_GETPLAYLISTFILE = 211;
   IPC_GETPLAYLISTTITLE = 212;
+  IPC_GETPLAYLISTTITLEW = 213;
   IPC_GETLISTPOS = 125;
   IPC_SETVOLUME = 122;
   IPC_GETLISTLENGTH = 124;
@@ -107,10 +108,10 @@ procedure TZapiszListe.Execute;
 var
   i: integer;
   wpis: PAnsiChar;
-  lista: string;
+  lista: AnsiString;
   dlugoscListy: integer;
   plik: TStringList;
-  rejestr: TRegistry;
+  plikUchwyt: TStringList;
   mca64Launcher: HWND;
   doWyslania: TCopyDataStruct;
   tekst: AnsiString;
@@ -121,26 +122,24 @@ begin
   for i := 0 to dlugoscListy - 1 do
   begin
     wpis := Pointer(SendMessage(hookNaKomunikaty.fUchwyt, WM_WA_IPC, i, IPC_GETPLAYLISTTITLE));
-    lista := lista + String(wpis) + #13#10;
+    lista := lista + wpis + #13#10;
   end;
   plik := TStringList.Create;
   try
-    plik.Add(lista);
+    plik.Add(String(lista));
     try
       plik.SaveToFile(TPath.GetTempPath + 'mca64Launcher_Winamp.txt');
-      // wyslanie komunikatu do mca64Launcher
-      rejestr := TRegistry.Create((KEY_READ));
+      plikUchwyt := TStringList.Create;
       try
-        rejestr.RootKey := HKEY_LOCAL_MACHINE;
-        rejestr.OpenKey('SOFTWARE\mca64Launcher\', false);
-        mca64Launcher := rejestr.ReadInteger('Uchwyt');
+        plikUchwyt.LoadFromFile(TPath.GetTempPath + 'mca64Launcher_uchwyt.txt');
+        mca64Launcher := StrToInt(plikUchwyt.Strings[0]);
         tekst := 'gen_mca64Launcher';
         doWyslania.dwData := hookNaKomunikaty.fUchwyt;
         doWyslania.cbData := Length(tekst) + 1;
         doWyslania.lpData := PAnsiChar(tekst);
         SendMessage(mca64Launcher, WM_COPYDATA, NativeInt(Handle), NativeInt(@doWyslania));
       finally
-        rejestr.Free;
+        plikUchwyt.Free;
       end;
     except
 
