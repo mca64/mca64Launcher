@@ -116,7 +116,7 @@ var
   doWyslania: TCopyDataStruct;
   tekst: AnsiString;
 begin
-  sleep(5000);
+  sleep(3000);
   hookNaKomunikaty.pUruchomWatek := false;
   dlugoscListy := SendMessage(hookNaKomunikaty.fUchwyt, WM_WA_IPC, 0, IPC_GETLISTLENGTH); // winampPlugin.uchwyt
   for i := 0 to dlugoscListy - 1 do
@@ -152,6 +152,7 @@ end;
 function winampGetGeneralPurposePlugin: PWinampGeneralPurposePlugin; cdecl;
 begin
   winampGetGeneralPurposePlugin := @winampPlugin;
+  TZapiszListe.Create;
   hookNaKomunikaty := THookNaKomunikaty.Create;
 end;
 
