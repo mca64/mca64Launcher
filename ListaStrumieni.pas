@@ -5,8 +5,8 @@ interface
 uses
   System.Classes, IdHTTP, IdSSLOpenSSL, System.JSON, Vcl.ComCtrls, SysUtils, StrUtils,
   System.DateUtils, System.TimeSpan, Vcl.ExtCtrls,
-  Windows,
-  Diagnostics;
+  Windows;
+// Diagnostics;
 
 type
   TStringiTablica = array [0 .. 1] of string;
@@ -22,18 +22,19 @@ type
     // fPomiarCzasuPobrania, fPomiarCzasuReszty: TStopWatch;
     // fRozmiar: String;
     fSortujWgProgramu: boolean;
+    fJezyk: integer;
     // fHinty : array of string;
     // function PobierzHinty(indeks: integer): string;
     function PobierzInformacjeTwitchAPI: boolean;
     procedure AktualizaujListView;
-    function SnipealotRasaGracza(const bonjwa: string): Integer;
-    function ModyfikacjaInfa(const kanal: string; const j: Integer): TStringiTablica;
+    function SnipealotRasaGracza(const bonjwa: string): integer;
+    function ModyfikacjaInfa(const kanal: string; const j: integer): TStringiTablica;
   protected
     procedure Execute; override;
   public
     // property pHinty [indeks: integer]: string read PobierzHinty;
     constructor Create(const lv: TlistView; const bazaDanych: TStringList; const pb: TProgressBar; const ti: TTrayIcon;
-      const sortujWgProgramu: boolean);
+      const sortujWgProgramu: boolean; const jezyk: integer);
   end;
 
 implementation
@@ -64,16 +65,14 @@ var
   views: TJSONString;
   viewers: TJSONString;
   display_name: TJSONString;
-  liczbaStrumieni: Integer;
-  i, j: Integer;
+  liczbaStrumieni: integer;
+  i, j: integer;
   fu: TFormatSettings;
   t1, t2, t3: TDate;
-  d: Integer;
+  d: integer;
   uplyneloKonto, uplyneloStrumien: string;
-  pierdolSieTwitch: boolean;
 begin
   // fPomiarCzasuPobrania.Start;
-  pierdolSieTwitch := false;
   Queue(
     procedure
     begin
@@ -132,11 +131,7 @@ begin
       strumien := streams.Items[i] as TJSONObject;
       viewers := strumien.Get('viewers').JsonValue as TJSONString;
       _id := strumien.Get('_id').JsonValue as TJSONString;
-      try
-        created_atStrumien := strumien.Get('created_at').JsonValue as TJSONString;
-      except
-        pierdolSieTwitch := true;
-      end;
+      created_atStrumien := strumien.Get('created_at').JsonValue as TJSONString;
       channel := strumien.Get('channel').JsonValue as TJSONObject;
       created_atKonto := channel.Get('created_at').JsonValue as TJSONString;
       followers := channel.Get('followers').JsonValue as TJSONString;
@@ -152,7 +147,7 @@ begin
       views := channel.Get('views').JsonValue as TJSONString;
       display_name := channel.Get('display_name').JsonValue as TJSONString;
       fLiczbaWidzow[i] := viewers.Value;
-      if not pierdolSieTwitch then fCzasStrumieniowania[i] := created_atStrumien.Value;
+      fCzasStrumieniowania[i] := created_atStrumien.Value;
       fDataUtworzeniaKonta[i] := created_atKonto.Value;
       fLiczbaSledzacych[i] := followers.Value;
       fNazwaKanalu[i] := name.Value;
@@ -166,24 +161,21 @@ begin
       d := trunc(t2 - t1);
       if d > 0 then uplyneloKonto := (Format('%dd, %s', [d, FormatDateTime('hh''h'' nn''min'' ss''s''', Frac(t2 - t1))]))
       else uplyneloKonto := (Format('%s', [FormatDateTime('hh''h'' nn''min'' ss''s''', Frac(t2 - t1))]));
-      if not pierdolSieTwitch then
-      begin
-        t3 := StrToDateTime(fCzasStrumieniowania[i], fu);
-        d := trunc(t2 - t3);
-        if d > 0 then uplyneloStrumien := (Format('%dd, %s', [d, FormatDateTime('hh''h'' nn''min'' ss''s''', Frac(t2 - t3))]))
-        else uplyneloStrumien := (Format('%s', [FormatDateTime('hh''h'' nn''min'' ss''s''', Frac(t2 - t3))]));
-      end;
-      if not pierdolSieTwitch then
+      t3 := StrToDateTime(fCzasStrumieniowania[i], fu);
+      d := trunc(t2 - t3);
+      if d > 0 then uplyneloStrumien := (Format('%dd, %s', [d, FormatDateTime('hh''h'' nn''min'' ss''s''', Frac(t2 - t3))]))
+      else uplyneloStrumien := (Format('%s', [FormatDateTime('hh''h'' nn''min'' ss''s''', Frac(t2 - t3))]));
+      if fJezyk = 0 then
           Form1.HintyTablica[i] := 'Adres: ' + fURL[i] + #13#10 + 'Opis: ' + fOpisKanalu[i] + #13#10 + 'Data utworzenia konta: ' +
           FormatDateTime('c', StrToDateTime(fDataUtworzeniaKonta[i], fu)) + #13#10 + 'Czas strumieniowania: ' +
           FormatDateTime('c', t3 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (upłyneło ' + uplyneloStrumien + ')' + #13#10 +
           'Czas ostatniej aktualizacji kanału: ' + FormatDateTime('c', t1 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (upłyneło ' +
           uplyneloKonto + ')' + #13#10 + 'Liczba odwiedzin: ' + fLiczbaOdwiedzin[i] + #13#10 + 'Liczba śledzących: ' + fLiczbaSledzacych[i]
-      else Form1.HintyTablica[i] := 'Adres: ' + fURL[i] + #13#10 + 'Opis: ' + fOpisKanalu[i] + #13#10 + 'Data utworzenia konta: ' +
-          FormatDateTime('c', StrToDateTime(fDataUtworzeniaKonta[i], fu)) { + #13#10 + 'Czas strumieniowania: ' +
-          FormatDateTime('c', t3 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (upłyneło ' + uplyneloStrumien + ')' } + #13#10 +
-          'Czas ostatniej aktualizacji kanału: ' + FormatDateTime('c', t1 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (upłyneło ' +
-          uplyneloKonto + ')' + #13#10 + 'Liczba odwiedzin: ' + fLiczbaOdwiedzin[i] + #13#10 + 'Liczba śledzących: ' + fLiczbaSledzacych[i]
+      else Form1.HintyTablica[i] := 'Address: ' + fURL[i] + #13#10 + 'Description: ' + fOpisKanalu[i] + #13#10 + 'Account created at: ' +
+          FormatDateTime('c', StrToDateTime(fDataUtworzeniaKonta[i], fu)) + #13#10 + 'Stream uptime: ' +
+          FormatDateTime('c', t3 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (elapsed ' + uplyneloStrumien + ')' + #13#10 +
+          'Channel updated at: ' + FormatDateTime('c', t1 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (elapsed ' + uplyneloKonto + ')' +
+          #13#10 + 'Views: ' + fLiczbaOdwiedzin[i] + #13#10 + 'Followers: ' + fLiczbaSledzacych[i]
     end;
     // Twitch API V2 (program do strumieniowania)
     jsonObiekt.Free;
@@ -216,7 +208,7 @@ begin
   Synchronize(
     procedure
     var
-      i, j: Integer;
+      i, j: integer;
       temp: TStringiTablica;
       listaKanalowPrzed, listaKanalowPo: array of string;
       nowyStrumien: boolean;
@@ -299,7 +291,7 @@ begin
 end;
 
 constructor TListaStrumieni.Create(const lv: TlistView; const bazaDanych: TStringList; const pb: TProgressBar; const ti: TTrayIcon;
-const sortujWgProgramu: boolean);
+const sortujWgProgramu: boolean; const jezyk: integer);
 begin
   inherited Create(false);
   FreeOnTerminate := true;
@@ -308,6 +300,7 @@ begin
   fProgressBar := pb;
   fTrayIcon := ti;
   fSortujWgProgramu := sortujWgProgramu;
+  fJezyk := jezyk;
 end;
 
 procedure TListaStrumieni.Execute;
@@ -322,7 +315,7 @@ begin
     end); }
 end;
 
-function TListaStrumieni.SnipealotRasaGracza(const bonjwa: string): Integer;
+function TListaStrumieni.SnipealotRasaGracza(const bonjwa: string): integer;
 var
   gracz: string;
 begin
@@ -340,10 +333,10 @@ begin
   else Result := 4
 end;
 
-function TListaStrumieni.ModyfikacjaInfa(const kanal: string; const j: Integer): TStringiTablica;
+function TListaStrumieni.ModyfikacjaInfa(const kanal: string; const j: integer): TStringiTablica;
 var
-  i: Integer;
-  poczatekKanalu: Integer;
+  i: integer;
+  poczatekKanalu: integer;
   temp: string;
 begin
   try
