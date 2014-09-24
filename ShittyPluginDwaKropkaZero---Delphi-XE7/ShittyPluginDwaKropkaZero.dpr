@@ -13,18 +13,30 @@ uses
   Windows;
 
 type
+  TTekstGra = packed record
+    komenda_tc1, komenda_tc0, wersja, Twitch_laczenie, Twitch_brakKonfiguracji: PAnsiChar;
+  end;
+
   TShittyPlugin = class
   private
     fLicznikAkcji: array [0 .. 7] of integer;
     fAkcje: array [0 .. 7] of byte;
-    // fPomiarCzasuWykonaniaKodu: AnsiString;
+    fPomiarCzasuWykonaniaKodu: AnsiString;
     fMojNumerGracza: integer;
     fResetujAPM: boolean;
     fPoczatekGry: boolean;
     fCzasGrySekundy: single;
     fTc: boolean;
     fNowaWiadomoscTwitch: boolean;
-    fWiadomoscTwitch: AnsiString;
+    fTrescWiadomosciTwitch: AnsiString;
+    fTekstGra: TTekstGra;
+    fGracze: AnsiString;
+    fMapa: AnsiString;
+    fMapaPozycjaX: integer;
+
+    fPomiarCzasuWykonaniaKodu5, fPomiarCzasuWykonaniaKodu12, fPomiarCzasuWykonaniaKodu16, fPomiarCzasuWykonaniaKodu26,
+      fPomiarCzasuWykonaniaKodu27: int64;
+    fCalosc, fSrednia5: extended;
     procedure JmpPatch(const od, skokDo: cardinal);
     procedure InstalacjaPodpiec;
     procedure CofniecieInstalacjiPodpiec;
@@ -45,23 +57,31 @@ type
     procedure BW_Piksel(const x, y: integer; const kolor: byte); stdcall;
     procedure BW_Boks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
     procedure BW_PrzezroczystyBoks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
+    function BW_SzerekoscTekstu(const tekst: PAnsiChar): integer; stdcall;
+    procedure Debug;
   public
     property pMojNumerGracza: integer read fMojNumerGracza;
     property pResetujAPM: boolean write ResetujAPM;
     property pPoczatekGry: boolean write fPoczatekGry;
     property pCzasGrySekundy: single read fCzasGrySekundy;
     property pTc: boolean read fTc;
-    property pNowaWiadomoscTwitch: boolean read fNowaWiadomoscTwitch write fNowaWiadomoscTwitch;
-    property pWiadomoscTwitch: AnsiString read fWiadomoscTwitch write fWiadomoscTwitch;
+    property pNowaWiadomoscTwitch: boolean write fNowaWiadomoscTwitch;
+    property pTrescWiadomosciTwitch: AnsiString write fTrescWiadomosciTwitch;
+    property pTekstGra: TTekstGra read fTekstGra;
+    property pGracze: AnsiString write fGracze;
+    property pMapa: AnsiString read fMapa write fMapa;
+    property pMapaPozycjaX: integer write fMapaPozycjaX;
     constructor Create;
   end;
 
   TGlownyWatek = class(TThread)
   private
+    function PobierzNazweMapy: AnsiString;
   protected
     procedure Execute; override;
   public
     fResetujZmienne: boolean;
+    fPoczatekGry: boolean;
     constructor Create(wstrzymanie: boolean);
   end;
 
@@ -70,6 +90,8 @@ type
     fIdIRC: TIdIRC;
     fLogin: string;
     fHaslo: string;
+    fKanal: string;
+    fBlad: boolean;
     function Polacz: boolean;
     procedure NowaWiadomosc(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AMessage: string);
     procedure WyslijWiadomosc(const tresc: AnsiString);
@@ -77,15 +99,39 @@ type
   public
     property pLogin: string read fLogin;
     property pWyslijWiadomosc: AnsiString write WyslijWiadomosc;
-    constructor Create;
+    property pBlad: boolean read fBlad;
+    constructor Create(const kanal: String);
     destructor Destroy; override;
   end;
+
+  TGrafika = class
+  private
+  public
+    x, y: array of word;
+    kolor: array of byte;
+  end;
+
+  { TStale = class
+    public const
+
+    end; }
+
+const
+  polski: TTekstGra = (komenda_tc1: #4'<ShittyPlugin> ' + #7 + 'Wiadomości Twitch''a: ' + #3 + 'włączone';
+    komenda_tc0: #4'<ShittyPlugin> ' + #7 + 'Wiadomości Twitch''a: ' + #6 + 'wyłączone';
+    wersja: #4'<ShittyPlugin> ' + #7'Wersja: ' + #3'2.0';
+    Twitch_laczenie: #4'<ShittyPlugin> '#7'Próba ponownego połączenia z czatem Twitcha...';
+    Twitch_brakKonfiguracji: #4'<ShittyPlugin> '#6'Ustawienia Twitch''a nie są skonfigurowane');
+  angielski: TTekstGra = (komenda_tc1: #4'<ShittyPlugin> ' + #7 + 'Twitch messages: ' + #3 + 'ON';
+    komenda_tc0: #4'<ShittyPlugin> ' + #7 + 'Twitch messages: ' + #6 + 'OFF'; wersja: #4'<ShittyPlugin> ' + #7'Version: ' + #3'2.0';
+    Twitch_laczenie: #4'<ShittyPlugin> '#7'Reconnecting to Twitch chat...';
+    Twitch_brakKonfiguracji: #4'<ShittyPlugin> '#6'Twitch''s settings are not configured');
 
 var
   ShittyPlugin: TShittyPlugin;
   glownyWatek: TGlownyWatek;
   czatTwitcha: TCzatTwitcha;
-
+  czestoliwosc: int64;
 function Gra: boolean; forward;
 function Powtorka: boolean; forward;
 function Lobby: boolean; forward;
@@ -148,26 +194,29 @@ const
   adres: cardinal = $0041FB30;
 var
   pierwotnyRozmiarCzcionki: cardinal;
-  { czestoliwosc: int64;
-    start: int64;
-    stop: int64;
-    delta: extended; }
+  start: int64;
+  stop: int64;
+  delta: extended;
 begin
   if Gra then
   begin
-    { QueryPerformanceFrequency(czestoliwosc);
-      QueryPerformanceCounter(start); }
+    QueryPerformanceCounter(start);
     if fPoczatekGry then
     begin
       fMojNumerGracza := integer(Pointer($00512684)^);
       fResetujAPM := True;
-      glownyWatek.fResetujZmienne := True;
+      try
+        glownyWatek.fResetujZmienne := True;
+        glownyWatek.fPoczatekGry := True;
+      finally
+
+      end;
       fPoczatekGry := False;
-      BW_Tekst(#4'<ShittyPlugin> ' + #7'Wersja: ' + #3'2.0');
+      BW_Tekst(fTekstGra.wersja);
     end;
     if (fTc) and (fNowaWiadomoscTwitch) then
     begin
-      BW_Tekst(PAnsiChar(fWiadomoscTwitch));
+      BW_Tekst(PAnsiChar(fTrescWiadomosciTwitch));
       fNowaWiadomoscTwitch := False;
     end;
     pierwotnyRozmiarCzcionki := cardinal(Pointer($006D5DDC)^);
@@ -177,12 +226,14 @@ begin
     // normalna: $006CE0F8;
     // mala: $006CE0F4;
     // *****************************************************cały kod tutaj:
-    // BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
+    BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
     fCzasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
-    BW_TekstXY(004, 002, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
-    // BW_TekstXY(004, 013, PAnsiChar(fPomiarCzasuWykonaniaKodu + ' ms'));
-    BW_TekstXY(306, 022, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
-    BW_TekstXY(014, 284, PAnsiChar(#4 + Godzina));
+    BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
+    BW_TekstXY(306, 22, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
+    BW_TekstXY(14, 284, PAnsiChar(#4 + Godzina));
+    Debug;
+    BW_TekstXY(Ceil(320 - (BW_SzerekoscTekstu(PAnsiChar(fMapa)) / 2)), 11, PAnsiChar(#4 + fMapa));
+
     // *****************************************************
     BW_RozmiarCzcionki($00000000);
     asm                               // przywrócenie rozmiaru czcionki
@@ -191,10 +242,32 @@ begin
       call  dword ptr [adres]
       popad
     end;
-    { QueryPerformanceCounter(stop);
-      delta := ((stop - start) / czestoliwosc) * 1000;
-      fPomiarCzasuWykonaniaKodu := AnsiString(FloatToStr(delta)); }
+    QueryPerformanceCounter(stop);
+    delta := ((stop - start) / czestoliwosc) * 1000;
+    fPomiarCzasuWykonaniaKodu := AnsiString(FloatToStr(delta));
+    if delta <= 6 then
+    begin
+      fPomiarCzasuWykonaniaKodu5 := fPomiarCzasuWykonaniaKodu5 + 1;
+      fCalosc := fCalosc + delta;
+      fSrednia5 := fCalosc / fPomiarCzasuWykonaniaKodu5;
+    end
+    else if delta < 12 then fPomiarCzasuWykonaniaKodu12 := fPomiarCzasuWykonaniaKodu12 + 1
+    else if delta < 16 then fPomiarCzasuWykonaniaKodu16 := fPomiarCzasuWykonaniaKodu16 + 1
+    else if delta < 26 then fPomiarCzasuWykonaniaKodu26 := fPomiarCzasuWykonaniaKodu26 + 1
+    else if delta >= 26 then fPomiarCzasuWykonaniaKodu27 := fPomiarCzasuWykonaniaKodu27 + 1;
+
   end;
+end;
+
+procedure TShittyPlugin.Debug;
+begin
+  BW_TekstXY(4, 13, PAnsiChar(fPomiarCzasuWykonaniaKodu));
+  BW_TekstXY(4, 24, PAnsiChar(#3 + '<=5 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu5))));
+  BW_TekstXY(4, 35, PAnsiChar(#3 + '>6 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu12))));
+  BW_TekstXY(4, 46, PAnsiChar(#3 + '>12 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu16))));
+  BW_TekstXY(4, 57, PAnsiChar(#3 + '>16 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu26))));
+  BW_TekstXY(4, 68, PAnsiChar(#3 + '>26 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu27))));
+  BW_TekstXY(4, 79, PAnsiChar(#3 + 'Sre '#4 + AnsiString(FloatToStr(fSrednia5))));
 end;
 
 function TShittyPlugin.CzasGry(const czasGrySekundy: single): AnsiString;
@@ -247,7 +320,7 @@ end;
 
 function TShittyPlugin.KomendyGra;
 var
-  wiadomoscDoWyslania, temp: AnsiString;
+  kanal, wiadomoscDoWyslania, temp: AnsiString;
 begin
   Result := True;
   if LowerCase(String(wprowadzonyTekst)) = '/tc' then
@@ -255,31 +328,44 @@ begin
     if fTc then
     begin
       fTc := False;
-      BW_Tekst(#4'<ShittyPlugin> ' + #7 + 'Wiadomości Twitch''a: ' + #6 + 'wyłączone')
+      BW_Tekst(fTekstGra.komenda_tc0);
     end
     else
     begin
       fTc := True;
-      BW_Tekst(#4'<ShittyPlugin> ' + #7 + 'Wiadomości Twitch''a: ' + #3 + 'włączone')
+      BW_Tekst(fTekstGra.komenda_tc1)
     end;
   end
-  else if LowerCase(String(wprowadzonyTekst)) = '/twitch' then
+  else if LowerCase(String(wprowadzonyTekst)) = '/j' then
   begin
     try
       if czatTwitcha <> nil then FreeAndNil(czatTwitcha);
-      czatTwitcha := TCzatTwitcha.Create;
+      czatTwitcha := TCzatTwitcha.Create('');
+    except
+    end;
+  end
+  else if Pos('/j ', (LowerCase(String(wprowadzonyTekst)))) = 1 then
+  begin
+    if Length(wprowadzonyTekst) > 3 then kanal := Copy(wprowadzonyTekst, 4, Length((wprowadzonyTekst)) - 3);
+    try
+      if czatTwitcha <> nil then FreeAndNil(czatTwitcha);
+      czatTwitcha := TCzatTwitcha.Create(String(kanal));
     except
     end;
   end
   else if Pos('/t ', LowerCase(String(wprowadzonyTekst))) = 1 then
   begin
-    if Length(String(wprowadzonyTekst)) > 3 then
+    if not czatTwitcha.pBlad then
     begin
-      wiadomoscDoWyslania := Copy(wprowadzonyTekst, 4, Length(wprowadzonyTekst) - 3);
-      czatTwitcha.pWyslijWiadomosc := wiadomoscDoWyslania;
-      temp := #7 + AnsiString(czatTwitcha.pLogin) + ': ' + #4 + wiadomoscDoWyslania;
-      BW_Tekst(PAnsiChar(temp));
-    end;
+      if Length(wprowadzonyTekst) > 3 then
+      begin
+        wiadomoscDoWyslania := Copy(wprowadzonyTekst, 4, Length((wprowadzonyTekst)) - 3);
+        czatTwitcha.pWyslijWiadomosc := wiadomoscDoWyslania;
+        temp := #7 + AnsiString(czatTwitcha.pLogin) + ': ' + #4 + wiadomoscDoWyslania;
+        BW_Tekst(PAnsiChar(temp));
+      end;
+    end
+    else BW_Tekst(PAnsiChar('gg no re'));
   end
   else Result := False;
 
@@ -430,6 +516,9 @@ const
 end;
 
 procedure TShittyPlugin.BW_PrzezroczystyBoks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
+const
+  adresKolor: cardinal = $006CF4AC;
+  adres: cardinal = $004E1D20;
 var
   rysuj: boolean;
   i, j: integer;
@@ -439,29 +528,62 @@ begin
   begin
     for j := x to x + szerekosc - 1 do
     begin
-      if rysuj then BW_Boks(j, i, 1, 1, kolor);
+      if rysuj then
+        asm
+          pushad
+          mov   cl, kolor
+          mov   eax, adresKolor
+          mov   byte ptr ds:[eax], cl
+          push  1
+          push  1
+          push  i
+          push  j
+          call  dword ptr [adres]
+          popad
+        end;
       rysuj := not rysuj;
     end;
     if szerekosc mod 2 = 0 then rysuj := not rysuj;
   end;
 end;
 
+function TShittyPlugin.BW_SzerekoscTekstu(const tekst: PAnsiChar): integer; stdcall;
+const
+  szerokoscTekstu: cardinal = $006CE108;
+  adresFunkcji: cardinal = $0041F920;
+begin
+  asm
+    pushad
+    mov   ecx, [szerokoscTekstu]
+    mov   dword ptr ds:[ecx], 0
+    mov   eax, [tekst]
+    call  dword ptr [adresFunkcji]
+    popad
+  end;
+  Result := integer(Pointer(szerokoscTekstu)^);
+end;
+
 constructor TShittyPlugin.Create;
 begin
   inherited Create;
   fTc := True;
+  fTekstGra := angielski;
   ShittyPlugin.InstalacjaPodpiec;
 end;
 
 procedure TGlownyWatek.Execute;
 begin
   DirectIPPatch;
-  czatTwitcha := TCzatTwitcha.Create;
+  czatTwitcha := TCzatTwitcha.Create('');
   while not Terminated do
   begin
     if Gra then
     begin
-
+      if fPoczatekGry then
+      begin
+        fPoczatekGry := False;
+        ShittyPlugin.pMapa := PobierzNazweMapy;
+      end;
     end
     else
     begin
@@ -469,11 +591,39 @@ begin
       begin
         ShittyPlugin.pResetujAPM := True;
         ShittyPlugin.pPoczatekGry := True;
+        ShittyPlugin.pMapa := '';
         fResetujZmienne := False;
       end;
     end;
     Sleep(350);
   end;
+end;
+
+function TGlownyWatek.PobierzNazweMapy;
+const
+  adres: integer = $0057FE40;
+var
+  znak: Char;
+  offset: integer;
+  znakOrd: integer;
+  nazwaMapy: AnsiString;
+begin
+  offset := 0;
+  repeat
+    znak := Chr(byte(Pointer(adres + offset)^));
+    znakOrd := Ord(znak);
+    if (znakOrd < 32) and (znakOrd <> 0) then
+    begin
+      if znakOrd = 7 then nazwaMapy := nazwaMapy + #6
+      else if znakOrd = 4 then nazwaMapy := nazwaMapy + #7
+      else if znakOrd = 6 then nazwaMapy := nazwaMapy + #4
+      else if znakOrd = 3 then nazwaMapy := nazwaMapy + #7
+      else nazwaMapy := nazwaMapy + AnsiString(znak);
+    end
+    else nazwaMapy := nazwaMapy + AnsiString(znak);
+    Inc(offset);
+  until (znak = #0) or (offset > 128);
+  Result := nazwaMapy;
 end;
 
 constructor TGlownyWatek.Create(wstrzymanie: boolean);
@@ -485,22 +635,22 @@ end;
 
 function TCzatTwitcha.Polacz: boolean;
 begin
-  if Gra then ShittyPlugin.BW_Tekst(#4'<ShittyPlugin> '#7'Próba ponownego połączenia z czatem Twitcha...');
+  if Gra then ShittyPlugin.BW_Tekst(ShittyPlugin.pTekstGra.Twitch_laczenie);
   fIdIRC := TIdIRC.Create(nil);
   fIdIRC.OnPrivateMessage := NowaWiadomosc;
   fIdIRC.UserMode := [];
-  fIdIRC.Host := '199.9.250.229';
+  fIdIRC.Host := 'irc.twitch.tv';
   fIdIRC.Nickname := fLogin;
   fIdIRC.Password := fHaslo;
   try
     fIdIRC.Connect;
-    fIdIRC.Join('#' + fLogin);
+    fIdIRC.Join('#' + fKanal);
     fIdIRC.IOHandler.DefStringEncoding := IndyTextEncoding_UTF8();
     Result := True;
   except
-    fIdIRC.Host := 'irc.twitch.tv';
+    fIdIRC.Host := '199.9.250.229';
     fIdIRC.Connect;
-    fIdIRC.Join('#' + fLogin);
+    fIdIRC.Join('#' + fKanal);
     fIdIRC.IOHandler.DefStringEncoding := IndyTextEncoding_UTF8();
     Result := True;
   end;
@@ -513,7 +663,7 @@ begin
   if ShittyPlugin.pTc = True then
   begin
     temp := Copy(AMessage, 1, 80);
-    ShittyPlugin.pWiadomoscTwitch := AnsiString(#3 + ANicknameFrom + ': ' + #4 + temp);
+    ShittyPlugin.pTrescWiadomosciTwitch := AnsiString(#3 + ANicknameFrom + ': ' + #4 + temp);
     ShittyPlugin.pNowaWiadomoscTwitch := True;
   end;
 end;
@@ -528,6 +678,7 @@ var
   ini: TINIFile;
 begin
   inherited Create;
+  fBlad := True;
   ini := TINIFile.Create(GetCurrentDir + '\ShittyPluginDwaKropkaZero.ini');
   try
     fLogin := ini.ReadString('ShittyPlugin', 'TwitchLogin', '');
@@ -535,8 +686,10 @@ begin
   finally
     ini.Free;
   end;
-  if (fLogin <> '') and (fHaslo <> '') then Polacz
-  else if Gra then ShittyPlugin.BW_Tekst(#4'<ShittyPlugin> '#6'Ustawienia Twitch''a nie są skonfigurowane');
+  if kanal <> '' then fKanal := kanal
+  else fKanal := fLogin;
+  if (fLogin <> '') and (fHaslo <> '') then fBlad := not Polacz;
+  // else if Gra then ShittyPlugin.BW_Tekst(ShittyPlugin.pTekstGra.Twitch_brakKonfiguracji);
 end;
 
 destructor TCzatTwitcha.Destroy;
@@ -603,6 +756,7 @@ begin
 end;
 
 begin
+  QueryPerformanceFrequency(czestoliwosc);
   DllProc := Wstrzykniecie;
   Wstrzykniecie(DLL_PROCESS_ATTACH);
 
