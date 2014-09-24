@@ -1,6 +1,7 @@
 library ShittyPluginDwaKropkaZero;
 {$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
 {$WEAKLINKRTTI ON}
+{$R *.dres}
 
 uses
   System.SysUtils,
@@ -10,9 +11,12 @@ uses
   IdContext,
   IdGlobal,
   IdIRC,
-  Windows;
+  Windows,
+  Vcl.Graphics;
 
 type
+  TXYKolor = array of array of integer;
+
   TTekstGra = packed record
     komenda_tc1, komenda_tc0, wersja, Twitch_laczenie, Twitch_brakKonfiguracji: PAnsiChar;
   end;
@@ -37,6 +41,7 @@ type
     fPomiarCzasuWykonaniaKodu5, fPomiarCzasuWykonaniaKodu12, fPomiarCzasuWykonaniaKodu16, fPomiarCzasuWykonaniaKodu26,
       fPomiarCzasuWykonaniaKodu27: int64;
     fCalosc, fSrednia5: extended;
+
     procedure JmpPatch(const od, skokDo: cardinal);
     procedure InstalacjaPodpiec;
     procedure CofniecieInstalacjiPodpiec;
@@ -106,9 +111,17 @@ type
 
   TGrafika = class
   private
+    fGaz: TXYKolor;
+    fMineraly: TXYKolor;
+    fTwitch: TXYKolor;
+    fWinamp: TXYKolor;
+    fUzytkownika: TXYKolor;
+    procedure PobierzRGB(const kolor: TColor; var r, g, b: integer);
+    procedure KonwersjaBitmapy(const plik: boolean; const nazwaPlikuLubZasobu: string; var gdzieZapisac: TXYKolor);
   public
-    x, y: array of word;
-    kolor: array of byte;
+    constructor Create;
+    procedure Wyswietl(const xPoczatek, yPoczatek: integer; const xyKolor: TXYKolor);
+
   end;
 
   { TStale = class
@@ -131,6 +144,7 @@ var
   ShittyPlugin: TShittyPlugin;
   glownyWatek: TGlownyWatek;
   czatTwitcha: TCzatTwitcha;
+  grafika: TGrafika;
   czestoliwosc: int64;
 function Gra: boolean; forward;
 function Powtorka: boolean; forward;
@@ -235,6 +249,8 @@ begin
     BW_TekstXY(Ceil(320 - (BW_SzerekoscTekstu(PAnsiChar(fMapa)) / 2)), 11, PAnsiChar(#4 + fMapa));
 
     // *****************************************************
+    grafika.Wyswietl(100, 100, grafika.fWinamp);
+    grafika.Wyswietl(150, 250, grafika.fMineraly);
     BW_RozmiarCzcionki($00000000);
     asm                               // przywrócenie rozmiaru czcionki
       pushad
@@ -573,7 +589,8 @@ end;
 
 procedure TGlownyWatek.Execute;
 begin
-  DirectIPPatch;
+  // DirectIPPatch;
+  grafika := TGrafika.Create;
   czatTwitcha := TCzatTwitcha.Create('');
   while not Terminated do
   begin
@@ -595,7 +612,7 @@ begin
         fResetujZmienne := False;
       end;
     end;
-    Sleep(350);
+    Sleep(100);
   end;
 end;
 
@@ -699,6 +716,113 @@ begin
   except
   end;
   inherited;
+end;
+
+procedure TGrafika.PobierzRGB(const kolor: TColor; var r, g, b: integer);
+var
+  kolorRGB: 0 .. $FFFFFFFF;
+begin
+  kolorRGB := ColorToRGB(kolor);
+  r := ($000000FF and kolorRGB);
+  g := ($0000FF00 and kolorRGB) shr 8;
+  b := ($00FF0000 and kolorRGB) shr 16;
+end;
+
+procedure TGrafika.KonwersjaBitmapy(const plik: boolean; const nazwaPlikuLubZasobu: string; var gdzieZapisac: TXYKolor);
+var
+  probka: TBitmap;
+  bitampaDoKonwersji: TBitmap;
+  rBW, gBW, bBW: array [0 .. 255] of integer;
+  rRoznica, gRoznica, bRoznica: array [0 .. 255] of integer;
+  sumaRoznicRGB: array [0 .. 255] of integer;
+  r, g, b: integer;
+  x, y, i: integer;
+  najmniejszaRoznica: integer;
+begin
+  najmniejszaRoznica := 0;
+  probka := TBitmap.Create;
+  try
+    probka.LoadFromResourceName(hInstance, 'Bitmap_probka');
+    bitampaDoKonwersji := TBitmap.Create;
+    try
+      if plik then
+      begin
+        bitampaDoKonwersji.LoadFromFile(nazwaPlikuLubZasobu);
+        SetLength(gdzieZapisac, 0, 0);
+      end
+      else bitampaDoKonwersji.LoadFromResourceName(hInstance, nazwaPlikuLubZasobu);
+      SetLength(gdzieZapisac, bitampaDoKonwersji.Width, bitampaDoKonwersji.Height);
+      for x := 0 to 255 do
+      begin
+        PobierzRGB(probka.Canvas.Pixels[x, 0], r, g, b);
+        rBW[x] := r;
+        gBW[x] := g;
+        bBW[x] := b;
+      end;
+      for y := 0 to bitampaDoKonwersji.Height - 1 do
+        for x := 0 to bitampaDoKonwersji.Width - 1 do
+        begin
+          PobierzRGB(bitampaDoKonwersji.Canvas.Pixels[x, y], r, g, b);
+          for i := 0 to 255 do
+            if (i > 15) and (i < 197) or (i = 255) or (i = 0) then
+            begin
+              rRoznica[i] := Abs(r - rBW[i]);
+              gRoznica[i] := Abs(g - gBW[i]);
+              bRoznica[i] := Abs(b - bBW[i]);
+              sumaRoznicRGB[i] := rRoznica[i] + gRoznica[i] + bRoznica[i];
+              if i = 0 then najmniejszaRoznica := sumaRoznicRGB[i];
+              if sumaRoznicRGB[i] < najmniejszaRoznica then
+              begin
+                najmniejszaRoznica := sumaRoznicRGB[i];
+                gdzieZapisac[x][y] := i;
+              end;
+            end;
+        end;
+    finally
+      bitampaDoKonwersji.Free;
+    end;
+  finally
+    probka.Free;
+  end;
+end;
+
+procedure TGrafika.Wyswietl(const xPoczatek, yPoczatek: integer; const xyKolor: TXYKolor);
+const
+  adresKolor: cardinal = $006CF4AC;
+  adres: cardinal = $004E1D20;
+var
+  x, y: integer;
+  xEkran, yEkran: integer;
+  kolor: byte;
+begin
+  for x := 0 to Length(xyKolor[0]) - 1 do // [0] - x ; [1] - y;
+    for y := 0 to Length(xyKolor[1]) - 1 do
+      if xyKolor[x, y] <> 0 then // brak czarnego
+      // ShittyPlugin.BW_Piksel(x, y, xyKolor[x, y]);
+      begin
+        kolor := xyKolor[x, y];
+        xEkran := x + xPoczatek;
+        yEkran := y + yPoczatek;
+        asm
+          pushad
+          mov   cl, kolor
+          mov   eax, adresKolor
+          mov   byte ptr ds:[eax], cl
+          push  1
+          push  1
+          push  yEkran
+          push  xEkran
+          call  dword ptr [adres]
+          popad
+        end;
+      end;
+end;
+
+constructor TGrafika.Create;
+begin
+  inherited Create;
+  KonwersjaBitmapy(False, 'Bitmap_winamp', fWinamp);
+  KonwersjaBitmapy(False, 'Bitmap_Mineraly', fMineraly);
 end;
 
 function Gra;
