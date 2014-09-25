@@ -18,7 +18,7 @@ type
   TXYKolor = array of array of integer;
 
   TTekstGra = packed record
-    komenda_tc1, komenda_tc0, wersja, Twitch_laczenie, Twitch_brakKonfiguracji: PAnsiChar;
+    komenda_tc1, komenda_tc0, komenda_b1, komenda_b0, wersja, Twitch_laczenie, Twitch_brakKonfiguracji: PAnsiChar;
   end;
 
   TShittyPlugin = class
@@ -124,6 +124,25 @@ type
 
   end;
 
+  TOpcje = class
+  private
+    fGracze: boolean;
+    fMapa: boolean;
+    fCzasGry: boolean;
+    fGodzina: boolean;
+    fAPM: boolean;
+    fUtwor: boolean;
+    fBitmapa: boolean;
+  public
+    property pGracze: boolean read fGracze write fGracze;
+    property pMapa: boolean read fMapa write fMapa;
+    property pCzasGry: boolean read fCzasGry write fCzasGry;
+    property pGodzina: boolean read fGodzina write fGodzina;
+    property pAPM: boolean read fAPM write fAPM;
+    property pUtwor: boolean read fUtwor write fUtwor;
+    property pBitmapa: boolean read fBitmapa write fBitmapa;
+    constructor Create;
+  end;
   { TStale = class
     public const
 
@@ -132,11 +151,13 @@ type
 const
   polski: TTekstGra = (komenda_tc1: #4'<ShittyPlugin> ' + #7 + 'Wiadomości Twitch''a: ' + #3 + 'włączone';
     komenda_tc0: #4'<ShittyPlugin> ' + #7 + 'Wiadomości Twitch''a: ' + #6 + 'wyłączone';
-    wersja: #4'<ShittyPlugin> ' + #7'Wersja: ' + #3'2.0';
+    komenda_b1: #4'<ShittyPlugin> ' + #7 + 'Bitmapa''a: ' + #3 + 'włączona';
+    komenda_b0: #4'<ShittyPlugin> ' + #7 + 'Bitmapa''a: ' + #6 + 'wyłączona'; wersja: #4'<ShittyPlugin> ' + #7'Wersja: ' + #3'2.0';
     Twitch_laczenie: #4'<ShittyPlugin> '#7'Próba ponownego połączenia z czatem Twitcha...';
     Twitch_brakKonfiguracji: #4'<ShittyPlugin> '#6'Ustawienia Twitch''a nie są skonfigurowane');
   angielski: TTekstGra = (komenda_tc1: #4'<ShittyPlugin> ' + #7 + 'Twitch messages: ' + #3 + 'ON';
-    komenda_tc0: #4'<ShittyPlugin> ' + #7 + 'Twitch messages: ' + #6 + 'OFF'; wersja: #4'<ShittyPlugin> ' + #7'Version: ' + #3'2.0';
+    komenda_tc0: #4'<ShittyPlugin> ' + #7 + 'Twitch messages: ' + #6 + 'OFF'; komenda_b1: #4'<ShittyPlugin> ' + #7 + 'Bitmap: ' + #3 + 'ON';
+    komenda_b0: #4'<ShittyPlugin> ' + #7 + 'Bitmap: ' + #6 + 'OFF'; wersja: #4'<ShittyPlugin> ' + #7'Version: ' + #3'2.0';
     Twitch_laczenie: #4'<ShittyPlugin> '#7'Reconnecting to Twitch chat...';
     Twitch_brakKonfiguracji: #4'<ShittyPlugin> '#6'Twitch''s settings are not configured');
 
@@ -145,6 +166,7 @@ var
   glownyWatek: TGlownyWatek;
   czatTwitcha: TCzatTwitcha;
   grafika: TGrafika;
+  opcje: TOpcje;
   czestoliwosc: int64;
 function Gra: boolean; forward;
 function Powtorka: boolean; forward;
@@ -240,17 +262,20 @@ begin
     // normalna: $006CE0F8;
     // mala: $006CE0F4;
     // *****************************************************cały kod tutaj:
-    BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
+    // BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
     fCzasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
-    BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
-    BW_TekstXY(306, 22, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
-    BW_TekstXY(14, 284, PAnsiChar(#4 + Godzina));
+    if opcje.pAPM then BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
+    if opcje.pCzasGry then BW_TekstXY(306, 22, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
+    if opcje.pGodzina then BW_TekstXY(14, 284, PAnsiChar(#4 + Godzina));
     Debug;
-    BW_TekstXY(Ceil(320 - (BW_SzerekoscTekstu(PAnsiChar(fMapa)) / 2)), 11, PAnsiChar(#4 + fMapa));
+    if opcje.pMapa then BW_TekstXY(Ceil(320 - (BW_SzerekoscTekstu(PAnsiChar(fMapa)) / 2)), 11, PAnsiChar(#4 + fMapa));
 
     // *****************************************************
-    grafika.Wyswietl(100, 100, grafika.fWinamp);
-    grafika.Wyswietl(150, 250, grafika.fMineraly);
+    // grafika.Wyswietl(150, 250, grafika.fMineraly);
+    // grafika.Wyswietl(350, 250, grafika.fGaz);
+    // grafika.Wyswietl(450, 250, grafika.fTwitch);
+    // grafika.Wyswietl(100, 100, grafika.fWinamp);
+    if opcje.pBitmapa then grafika.Wyswietl(150, 150, grafika.fUzytkownika);
     BW_RozmiarCzcionki($00000000);
     asm                               // przywrócenie rozmiaru czcionki
       pushad
@@ -337,9 +362,11 @@ end;
 function TShittyPlugin.KomendyGra;
 var
   kanal, wiadomoscDoWyslania, temp: AnsiString;
+  komenda: string;
 begin
   Result := True;
-  if LowerCase(String(wprowadzonyTekst)) = '/tc' then
+  komenda := LowerCase(String(wprowadzonyTekst));
+  if komenda = '/tc' then
   begin
     if fTc then
     begin
@@ -352,7 +379,7 @@ begin
       BW_Tekst(fTekstGra.komenda_tc1)
     end;
   end
-  else if LowerCase(String(wprowadzonyTekst)) = '/j' then
+  else if komenda = '/j' then
   begin
     try
       if czatTwitcha <> nil then FreeAndNil(czatTwitcha);
@@ -360,7 +387,7 @@ begin
     except
     end;
   end
-  else if Pos('/j ', (LowerCase(String(wprowadzonyTekst)))) = 1 then
+  else if Pos('/j ', komenda) = 1 then
   begin
     if Length(wprowadzonyTekst) > 3 then kanal := Copy(wprowadzonyTekst, 4, Length((wprowadzonyTekst)) - 3);
     try
@@ -369,7 +396,7 @@ begin
     except
     end;
   end
-  else if Pos('/t ', LowerCase(String(wprowadzonyTekst))) = 1 then
+  else if Pos('/t ', komenda) = 1 then
   begin
     if not czatTwitcha.pBlad then
     begin
@@ -382,6 +409,29 @@ begin
       end;
     end
     else BW_Tekst(PAnsiChar('gg no re'));
+  end
+  else if komenda = '/b' then
+  begin
+    if opcje.fBitmapa then
+    begin
+      opcje.fBitmapa := False;
+      BW_Tekst(fTekstGra.komenda_b0);
+    end
+    else if Length(grafika.fUzytkownika) > 0 then
+    begin
+      opcje.fBitmapa := True;
+      BW_Tekst(fTekstGra.komenda_b1);
+    end;
+
+  end
+  else if Pos('/b ', komenda) = 1 then
+  begin
+    if Length(wprowadzonyTekst) > 3 then
+    begin
+      grafika.KonwersjaBitmapy(True, String(Copy(wprowadzonyTekst, 4, Length((wprowadzonyTekst)) - 3)), grafika.fUzytkownika);
+      opcje.fBitmapa := True;
+      BW_Tekst(fTekstGra.komenda_b1);
+    end;
   end
   else Result := False;
 
@@ -583,13 +633,13 @@ constructor TShittyPlugin.Create;
 begin
   inherited Create;
   fTc := True;
-  fTekstGra := angielski;
+  fTekstGra := polski;
   ShittyPlugin.InstalacjaPodpiec;
 end;
 
 procedure TGlownyWatek.Execute;
 begin
-  // DirectIPPatch;
+  DirectIPPatch;
   grafika := TGrafika.Create;
   czatTwitcha := TCzatTwitcha.Create('');
   while not Terminated do
@@ -795,34 +845,48 @@ var
   xEkran, yEkran: integer;
   kolor: byte;
 begin
-  for x := 0 to Length(xyKolor[0]) - 1 do // [0] - x ; [1] - y;
-    for y := 0 to Length(xyKolor[1]) - 1 do
-      if xyKolor[x, y] <> 0 then // brak czarnego
-      // ShittyPlugin.BW_Piksel(x, y, xyKolor[x, y]);
-      begin
-        kolor := xyKolor[x, y];
-        xEkran := x + xPoczatek;
-        yEkran := y + yPoczatek;
-        asm
-          pushad
-          mov   cl, kolor
-          mov   eax, adresKolor
-          mov   byte ptr ds:[eax], cl
-          push  1
-          push  1
-          push  yEkran
-          push  xEkran
-          call  dword ptr [adres]
-          popad
-        end;
+  for x := 0 to Length(xyKolor) - 1 do
+    for y := 0 to Length(xyKolor[0]) - 1 do
+    // if xyKolor[x, y] <> 0 then // brak czarnego
+    // ShittyPlugin.BW_Piksel(x, y, xyKolor[x, y]);
+    begin
+      kolor := xyKolor[x, y];
+      xEkran := x + xPoczatek;
+      yEkran := y + yPoczatek;
+      asm
+        pushad
+        mov   cl, kolor
+        mov   eax, adresKolor
+        mov   byte ptr ds:[eax], cl
+        push  1
+        push  1
+        push  yEkran
+        push  xEkran
+        call  dword ptr [adres]
+        popad
       end;
+    end;
 end;
 
 constructor TGrafika.Create;
 begin
   inherited Create;
+  KonwersjaBitmapy(False, 'Bitmap_mineraly', fMineraly);
+  KonwersjaBitmapy(False, 'Bitmap_gaz', fGaz);
+  KonwersjaBitmapy(False, 'Bitmap_twitch', fTwitch);
   KonwersjaBitmapy(False, 'Bitmap_winamp', fWinamp);
-  KonwersjaBitmapy(False, 'Bitmap_Mineraly', fMineraly);
+end;
+
+constructor TOpcje.Create;
+begin
+  inherited Create;
+  fGracze := True;
+  fMapa := True;
+  fCzasGry := True;
+  fGodzina := True;
+  fAPM := True;
+  fUtwor := True;
+  // fBitmapa := True;
 end;
 
 function Gra;
@@ -874,6 +938,7 @@ procedure Wstrzykniecie(stan: integer);
 begin
   if stan = DLL_PROCESS_ATTACH then
   begin
+    opcje := TOpcje.Create;
     ShittyPlugin := TShittyPlugin.Create;
     glownyWatek := TGlownyWatek.Create(False);
   end;
