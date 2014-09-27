@@ -126,6 +126,8 @@ type
 
   TOpcje = class
   private
+    fTwitchLogin: string;
+    fTwitchHaslo: string;
     fGracze: boolean;
     fMapa: boolean;
     fCzasGry: boolean;
@@ -133,7 +135,10 @@ type
     fAPM: boolean;
     fUtwor: boolean;
     fBitmapa: boolean;
+    fDirectIP: boolean;
   public
+    property pTwitchLogin: string read fTwitchLogin;
+    property pTwitchHaslo: string read fTwitchHaslo;
     property pGracze: boolean read fGracze write fGracze;
     property pMapa: boolean read fMapa write fMapa;
     property pCzasGry: boolean read fCzasGry write fCzasGry;
@@ -141,6 +146,7 @@ type
     property pAPM: boolean read fAPM write fAPM;
     property pUtwor: boolean read fUtwor write fUtwor;
     property pBitmapa: boolean read fBitmapa write fBitmapa;
+    property pDirectIP: boolean read fDirectIP write fDirectIP;
     constructor Create;
   end;
   { TStale = class
@@ -262,6 +268,7 @@ begin
     // normalna: $006CE0F8;
     // mala: $006CE0F4;
     // *****************************************************cały kod tutaj:
+
     // BW_PrzezroczystyBoks(0, 0, 639, 165, 46);
     fCzasGrySekundy := integer(Pointer($0057F23C)^) / 23.81;
     if opcje.pAPM then BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
@@ -269,13 +276,13 @@ begin
     if opcje.pGodzina then BW_TekstXY(14, 284, PAnsiChar(#4 + Godzina));
     Debug;
     if opcje.pMapa then BW_TekstXY(Ceil(320 - (BW_SzerekoscTekstu(PAnsiChar(fMapa)) / 2)), 11, PAnsiChar(#4 + fMapa));
-
-    // *****************************************************
     // grafika.Wyswietl(150, 250, grafika.fMineraly);
     // grafika.Wyswietl(350, 250, grafika.fGaz);
     // grafika.Wyswietl(450, 250, grafika.fTwitch);
     // grafika.Wyswietl(100, 100, grafika.fWinamp);
     if opcje.pBitmapa then grafika.Wyswietl(150, 150, grafika.fUzytkownika);
+
+    // *****************************************************
     BW_RozmiarCzcionki($00000000);
     asm                               // przywrócenie rozmiaru czcionki
       pushad
@@ -362,7 +369,7 @@ end;
 function TShittyPlugin.KomendyGra;
 var
   kanal, wiadomoscDoWyslania, temp: AnsiString;
-  komenda: string;
+  komenda, plikZdjecie: string;
 begin
   Result := True;
   komenda := LowerCase(String(wprowadzonyTekst));
@@ -422,19 +429,21 @@ begin
       opcje.fBitmapa := True;
       BW_Tekst(fTekstGra.komenda_b1);
     end;
-
   end
   else if Pos('/b ', komenda) = 1 then
   begin
     if Length(wprowadzonyTekst) > 3 then
     begin
-      grafika.KonwersjaBitmapy(True, String(Copy(wprowadzonyTekst, 4, Length((wprowadzonyTekst)) - 3)), grafika.fUzytkownika);
-      opcje.fBitmapa := True;
-      BW_Tekst(fTekstGra.komenda_b1);
+      plikZdjecie := String(Copy(wprowadzonyTekst, 4, Length((wprowadzonyTekst)) - 3));
+      if FileExists(plikZdjecie) then
+      begin
+        grafika.KonwersjaBitmapy(True, plikZdjecie, grafika.fUzytkownika);
+        opcje.fBitmapa := True;
+        BW_Tekst(fTekstGra.komenda_b1);
+      end;
     end;
   end
   else Result := False;
-
 end;
 
 class procedure TShittyPlugin.Podpiecie_Akcje;
@@ -461,7 +470,6 @@ begin
     call    [oryginalnaFunkcja]
     jmp     [powrot]
   end;
-
 end;
 
 procedure TShittyPlugin.Akcje;
@@ -639,7 +647,7 @@ end;
 
 procedure TGlownyWatek.Execute;
 begin
-  DirectIPPatch;
+  if opcje.pDirectIP then DirectIPPatch;
   grafika := TGrafika.Create;
   czatTwitcha := TCzatTwitcha.Create('');
   while not Terminated do
@@ -741,22 +749,15 @@ begin
 end;
 
 constructor TCzatTwitcha.Create;
-var
-  ini: TINIFile;
 begin
   inherited Create;
   fBlad := True;
-  ini := TINIFile.Create(GetCurrentDir + '\ShittyPluginDwaKropkaZero.ini');
-  try
-    fLogin := ini.ReadString('ShittyPlugin', 'TwitchLogin', '');
-    fHaslo := ini.ReadString('ShittyPlugin', 'TwitchHaslo', '');
-  finally
-    ini.Free;
-  end;
+  fLogin := opcje.pTwitchLogin;
+  fHaslo := opcje.pTwitchHaslo;
   if kanal <> '' then fKanal := kanal
   else fKanal := fLogin;
-  if (fLogin <> '') and (fHaslo <> '') then fBlad := not Polacz;
-  // else if Gra then ShittyPlugin.BW_Tekst(ShittyPlugin.pTekstGra.Twitch_brakKonfiguracji);
+  if (fLogin <> '') and (fHaslo <> '') then fBlad := not Polacz
+  else if Gra then ShittyPlugin.BW_Tekst(ShittyPlugin.pTekstGra.Twitch_brakKonfiguracji);
 end;
 
 destructor TCzatTwitcha.Destroy;
@@ -847,25 +848,24 @@ var
 begin
   for x := 0 to Length(xyKolor) - 1 do
     for y := 0 to Length(xyKolor[0]) - 1 do
-    // if xyKolor[x, y] <> 0 then // brak czarnego
-    // ShittyPlugin.BW_Piksel(x, y, xyKolor[x, y]);
-    begin
-      kolor := xyKolor[x, y];
-      xEkran := x + xPoczatek;
-      yEkran := y + yPoczatek;
-      asm
-        pushad
-        mov   cl, kolor
-        mov   eax, adresKolor
-        mov   byte ptr ds:[eax], cl
-        push  1
-        push  1
-        push  yEkran
-        push  xEkran
-        call  dword ptr [adres]
-        popad
+      if xyKolor[x, y] <> 0 then // brak czarnego
+      begin
+        kolor := xyKolor[x, y];
+        xEkran := x + xPoczatek;
+        yEkran := y + yPoczatek;
+        asm
+          pushad
+          mov   cl, kolor
+          mov   eax, adresKolor
+          mov   byte ptr ds:[eax], cl
+          push  1
+          push  1
+          push  yEkran
+          push  xEkran
+          call  dword ptr [adres]
+          popad
+        end;
       end;
-    end;
 end;
 
 constructor TGrafika.Create;
@@ -878,8 +878,20 @@ begin
 end;
 
 constructor TOpcje.Create;
+var
+  ini: TINIFile;
+  sciezka: array [0 .. MAX_PATH] of Char;
 begin
   inherited Create;
+  FillChar(sciezka, SizeOf(sciezka), #0);
+  GetModuleFileName(hInstance, sciezka, MAX_PATH);
+  ini := TINIFile.Create(ExtractFilePath(sciezka) + 'ShittyPluginDwaKropkaZero.ini');
+  try
+    fTwitchLogin := ini.ReadString('ShittyPlugin', 'TwitchLogin', '');
+    fTwitchHaslo := ini.ReadString('ShittyPlugin', 'TwitchHaslo', '');
+  finally
+    ini.Free;
+  end;
   fGracze := True;
   fMapa := True;
   fCzasGry := True;
@@ -887,6 +899,7 @@ begin
   fAPM := True;
   fUtwor := True;
   // fBitmapa := True;
+  fDirectIP := True;
 end;
 
 function Gra;
@@ -930,7 +943,6 @@ begin
     KopiujBlokPamieci(adres, cardinal(@kod), SizeOf(kod));
     Result := True;
   except
-
   end;
 end;
 
