@@ -37,6 +37,7 @@ type
     fGracze: AnsiString;
     fMapa: AnsiString;
     fMapaPozycjaX: integer;
+    fOstatnioZaznaczonyGracz: integer;
 
     fPomiarCzasuWykonaniaKodu5, fPomiarCzasuWykonaniaKodu12, fPomiarCzasuWykonaniaKodu16, fPomiarCzasuWykonaniaKodu26,
       fPomiarCzasuWykonaniaKodu27: int64;
@@ -64,6 +65,7 @@ type
     procedure BW_PrzezroczystyBoks(const x, y, szerekosc, wysokosc: integer; const kolor: byte); stdcall;
     function BW_SzerekoscTekstu(const tekst: PAnsiChar): integer; stdcall;
     procedure Debug;
+    procedure Obs;
   public
     property pMojNumerGracza: integer read fMojNumerGracza;
     property pResetujAPM: boolean write ResetujAPM;
@@ -136,6 +138,8 @@ type
     fUtwor: boolean;
     fBitmapa: boolean;
     fDirectIP: boolean;
+    fDebug: boolean;
+    fObs: boolean;
   public
     property pTwitchLogin: string read fTwitchLogin;
     property pTwitchHaslo: string read fTwitchHaslo;
@@ -147,6 +151,8 @@ type
     property pUtwor: boolean read fUtwor write fUtwor;
     property pBitmapa: boolean read fBitmapa write fBitmapa;
     property pDirectIP: boolean read fDirectIP write fDirectIP;
+    property pDebug: boolean read fDebug write fDebug;
+    property pObs: boolean read fObs write fObs;
     constructor Create;
   end;
   { TStale = class
@@ -180,6 +186,11 @@ function Lobby: boolean; forward;
 function LobbyPrzedGra: boolean; forward;
 procedure KopiujBlokPamieci(const miejsceDocelowe, zrodlo, dlugosc: cardinal); forward;
 function DirectIPPatch: boolean; forward;
+
+function IntToAnsiStr(const liczba: integer; const dokladnosc: integer = 0): AnsiString;
+begin
+  Str(liczba: dokladnosc, Result);
+end;
 
 procedure TShittyPlugin.JmpPatch(const od, skokDo: cardinal);
 var
@@ -247,12 +258,9 @@ begin
     begin
       fMojNumerGracza := integer(Pointer($00512684)^);
       fResetujAPM := True;
-      try
-        glownyWatek.fResetujZmienne := True;
-        glownyWatek.fPoczatekGry := True;
-      finally
-
-      end;
+      { if Powtorka then } opcje.pObs := True;
+      glownyWatek.fResetujZmienne := True;
+      glownyWatek.fPoczatekGry := True;
       fPoczatekGry := False;
       BW_Tekst(fTekstGra.wersja);
     end;
@@ -274,13 +282,15 @@ begin
     if opcje.pAPM then BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
     if opcje.pCzasGry then BW_TekstXY(306, 22, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
     if opcje.pGodzina then BW_TekstXY(14, 284, PAnsiChar(#4 + Godzina));
-    Debug;
+    BW_TekstXY(4, 13, PAnsiChar(#4 + fPomiarCzasuWykonaniaKodu));
+    if opcje.pObs then Obs;
+    if opcje.pDebug then Debug;
     if opcje.pMapa then BW_TekstXY(Ceil(320 - (BW_SzerekoscTekstu(PAnsiChar(fMapa)) / 2)), 11, PAnsiChar(#4 + fMapa));
     // grafika.Wyswietl(150, 250, grafika.fMineraly);
     // grafika.Wyswietl(350, 250, grafika.fGaz);
     // grafika.Wyswietl(450, 250, grafika.fTwitch);
     // grafika.Wyswietl(100, 100, grafika.fWinamp);
-    if opcje.pBitmapa then grafika.Wyswietl(150, 150, grafika.fUzytkownika);
+    if opcje.pBitmapa then grafika.Wyswietl(0, 0, grafika.fUzytkownika);
 
     // *****************************************************
     BW_RozmiarCzcionki($00000000);
@@ -309,13 +319,216 @@ end;
 
 procedure TShittyPlugin.Debug;
 begin
-  BW_TekstXY(4, 13, PAnsiChar(fPomiarCzasuWykonaniaKodu));
-  BW_TekstXY(4, 24, PAnsiChar(#3 + '<=5 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu5))));
-  BW_TekstXY(4, 35, PAnsiChar(#3 + '>6 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu12))));
-  BW_TekstXY(4, 46, PAnsiChar(#3 + '>12 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu16))));
-  BW_TekstXY(4, 57, PAnsiChar(#3 + '>16 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu26))));
-  BW_TekstXY(4, 68, PAnsiChar(#3 + '>26 '#4 + AnsiString(IntToStr(fPomiarCzasuWykonaniaKodu27))));
+  BW_TekstXY(300, 41, PAnsiChar(#4 + 'Licznik akcji: ' + #2 + IntToAnsiStr(fLicznikAkcji[fMojNumerGracza])));
+  BW_TekstXY(300, 52, PAnsiChar(#4 + 'Ostatnia akcja: ' + #2 + ' 0x' + AnsiString(IntToHex(fAkcje[fMojNumerGracza], 2))));
+  BW_TekstXY(300, 63, PAnsiChar(#4 + 'Liczba klatek: ' + #2 + IntToAnsiStr(integer(Pointer($0057F23C)^))));
+  BW_TekstXY(300, 74, PAnsiChar(#4 + 'Pozycja kursora w osi X: ' + #2 + IntToAnsiStr(integer(Pointer($006CDDC4)^))));
+  BW_TekstXY(300, 85, PAnsiChar(#4 + 'Pozycja kursora w osi Y: ' + #2 + IntToAnsiStr(integer(Pointer($006CDDC8)^))));
+  BW_TekstXY(300, 96, PAnsiChar(#4 + 'Czas gry [s]: ' + #2 + AnsiString(FloatToStr(fCzasGrySekundy))));
+  // BW_TekstXY(4, 13, PAnsiChar(#4+ fPomiarCzasuWykonaniaKodu));
+  BW_TekstXY(4, 24, PAnsiChar(#3 + '<=5 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu5)));
+  BW_TekstXY(4, 35, PAnsiChar(#3 + '>6 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu12)));
+  BW_TekstXY(4, 46, PAnsiChar(#3 + '>12 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu16)));
+  BW_TekstXY(4, 57, PAnsiChar(#3 + '>16 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu26)));
+  BW_TekstXY(4, 68, PAnsiChar(#3 + '>26 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu27)));
   BW_TekstXY(4, 79, PAnsiChar(#3 + 'Sre '#4 + AnsiString(FloatToStr(fSrednia5))));
+end;
+
+procedure TShittyPlugin.Obs;
+const
+  jednostkiZergTekst: array [0 .. 19] of AnsiString = ('Drone', 'Zergling', 'Hydralisk', 'Lurker Egg', 'Lurker', 'Ultralisk', 'Queen',
+    'Defiler', 'Mutalisk', 'Guardian', 'Devourer', 'Scourge', 'Infested T.', 'Sunken', 'Spore', 'Overlord', 'Broodling', 'Cocoon',
+    'Larva', 'Egg');
+  jednostkiTerranTekst: array [0 .. 15] of AnsiString = ('SCV', 'Marine', 'Ghost', 'Firebat', 'Medic', 'Siege Tank', 'Vulture', 'Goliath',
+    'Battlecruiser', 'Wraith', 'Valkyrie', 'Science V.', 'Dropship', 'Spider Mine', 'Nuclear Miss.', 'Turret');
+  jednostkiTossTekst: array [0 .. 15] of AnsiString = ('Probe', 'Zealot', 'Dragoon', 'Dark T.', 'Archon', 'High Templar', 'Reaver',
+    'Arbiter', 'Carrier', 'Corsair', 'Observer', 'Dark Archon', 'Scout', 'Shuttle', 'Cannon', 'Interceptor');
+  jednostkiZergNumer: array [0 .. 19] of integer = (6, 2, 3, 62, 68, 4, 10, 11, 8, 9, 27, 12, 15, 111, 109, 7, 5, 25, 0, 1);
+  jednostkiTerranNumer: array [0 .. 15] of integer = (7, 0, 1, 32, 34, 5, 2, 3, 12, 8, 58, 9, 11, 13, 14, 124);
+  jednostkiTossNumer: array [0 .. 15] of integer = (64, 65, 66, 61, 68, 67, 83, 71, 72, 60, 84, 63, 70, 69, 162, 73);
+var
+  licznikJednostek: array of integer;
+  numerZaznaczonegoGracza: integer;
+  nazwaZaznaczonegoGracza: AnsiString;
+  i: integer;
+  gracz: array [0 .. 7] of AnsiString;
+  mineraly: array [0 .. 7] of integer;
+  gaz: array [0 .. 7] of integer;
+  supply: array [0 .. 7] of integer;
+  supplyMaks: array [0 .. 7] of integer;
+  supplyKolor: array [0 .. 7] of AnsiChar;
+  pozycjaY: integer;
+  up: AnsiString;
+begin
+  pozycjaY := 22;
+  BW_TekstXY(109, 11, PAnsiChar(#4 + 'APM'));
+  grafika.Wyswietl(139, 11, grafika.fMineraly);
+  grafika.Wyswietl(184, 11, grafika.fGaz);
+  for i := 0 to 7 do
+  begin
+    SetLength(gracz[i], 16);
+    Move(Pointer($0057EEEB + (i * 36))^, gracz[i][1], Length(gracz[i]));
+    SetLength(gracz[i], StrLen(PAnsiChar(gracz[i])));
+    if gracz[i] <> '' then
+    begin
+      case byte(Pointer($00581DD6 + i)^) of // kolor gracza
+        $6F: gracz[i] := #$08 + gracz[i];
+        $A5: gracz[i] := #$0E + gracz[i];
+        $9F: gracz[i] := #$0F + gracz[i];
+        $A4: gracz[i] := #$10 + gracz[i];
+        $9C: gracz[i] := #$11 + gracz[i];
+        $13: gracz[i] := #$15 + gracz[i];
+        $54: gracz[i] := #$16 + gracz[i];
+        $87: gracz[i] := #$17 + gracz[i];
+        $B9: gracz[i] := #$18 + gracz[i];
+        $88: gracz[i] := #$19 + gracz[i];
+        $86: gracz[i] := #$1B + gracz[i];
+        $33: gracz[i] := #$1C + gracz[i];
+        $4D: gracz[i] := #$1D + gracz[i];
+        $9A: gracz[i] := #$1E + gracz[i];
+        $80: gracz[i] := #$1F + gracz[i]
+      else gracz[i] := #$02 + gracz[i]
+      end;
+      mineraly[i] := integer(Pointer($0057F0F0 + (i * 4))^);
+      gaz[i] := integer(Pointer($0057F120 + (i * 4))^);
+      case byte(Pointer($0057EEEB - 2 + (i * 36))^) of // rasa
+        0:
+          begin // zerg
+            supply[i] := integer(Pointer($00582174 + (i * 4))^);
+            supplyMaks[i] := integer(Pointer($00582144 + (i * 4))^);
+          end;
+        1:
+          begin // terran
+            supply[i] := integer(Pointer($00582204 + (i * 4))^);
+            supplyMaks[i] := integer(Pointer($005821D4 + (i * 4))^);
+          end;
+        2:
+          begin
+            supply[i] := integer(Pointer($00582294 + (i * 4))^);
+            supplyMaks[i] := integer(Pointer($00582264 + (i * 4))^);
+          end;
+      end;
+      if supply[i] <> 0 then supply[i] := Ceil(supply[i] / 2);
+      if supplyMaks[i] <> 0 then supplyMaks[i] := Ceil(supplyMaks[i] / 2);
+      if supply[i] > supplyMaks[i] then supplyKolor[i] := #6 // czerwony
+      else supplyKolor[i] := #7; // zielony
+      BW_TekstXY(4, pozycjaY, PAnsiChar(gracz[i]));
+      BW_TekstXY(109, pozycjaY, PAnsiChar(#4 + APM(i, fCzasGrySekundy)));
+      BW_TekstXY(139, pozycjaY, PAnsiChar(#7 + IntToAnsiStr(mineraly[i])));
+      BW_TekstXY(184, pozycjaY, PAnsiChar(#7 + IntToAnsiStr(gaz[i])));
+      BW_TekstXY(219, pozycjaY, PAnsiChar(supplyKolor[i] + IntToAnsiStr(supply[i]) + #7 + '/' + IntToAnsiStr(supplyMaks[i])));
+      pozycjaY := pozycjaY + 11;
+    end;
+  end;
+  pozycjaY := pozycjaY + 11;
+  if byte(Pointer($0059724C)^) = 0 then numerZaznaczonegoGracza := fOstatnioZaznaczonyGracz
+  else
+  begin
+    numerZaznaczonegoGracza := byte(Pointer(integer(Pointer($0059724C)^) + 76)^);
+    fOstatnioZaznaczonyGracz := numerZaznaczonegoGracza
+  end;
+  if numerZaznaczonegoGracza > 7 then Exit;
+  SetLength(nazwaZaznaczonegoGracza, 16);
+  Move(Pointer($0057EEEB + (numerZaznaczonegoGracza * 36))^, nazwaZaznaczonegoGracza[1], Length(nazwaZaznaczonegoGracza));
+  SetLength(nazwaZaznaczonegoGracza, StrLen(PAnsiChar(nazwaZaznaczonegoGracza)));
+  BW_TekstXY(16, pozycjaY, PAnsiChar(#4 + nazwaZaznaczonegoGracza + ':'));
+  pozycjaY := pozycjaY + 11;
+  case byte(Pointer($0057EEEB - 2 + (numerZaznaczonegoGracza * 36))^) of // rasa
+    0:
+      begin
+        up := IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 10)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 11)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 3)^));
+        if up <> '0-0-0' then
+        begin
+          BW_TekstXY(4, pozycjaY, PAnsiChar(#3 + 'Evolution Chamber ' + #4 + up));
+          pozycjaY := pozycjaY + 11;
+        end;
+        up := '';
+        up := IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 12)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 4)^));
+        if up <> '0-0' then
+        begin
+          BW_TekstXY(4, pozycjaY, PAnsiChar(#3 + 'Spire ' + #4 + up));
+          pozycjaY := pozycjaY + 11;
+        end;
+        // licznik jednostek
+        SetLength(licznikJednostek, Length(jednostkiZergTekst));
+        for i := 0 to Length(licznikJednostek) - 1 do
+        begin
+          licznikJednostek[i] := byte(Pointer($005829B4 + (numerZaznaczonegoGracza * 4) + (48 * jednostkiZergNumer[i]))^);
+          if licznikJednostek[i] <> 0 then
+          begin
+            BW_TekstXY(4, pozycjaY, PAnsiChar(#2 + jednostkiZergTekst[i]));
+            BW_TekstXY(79, pozycjaY, PAnsiChar(#7 + IntToAnsiStr(licznikJednostek[i])));
+            pozycjaY := pozycjaY + 11;
+          end;
+        end;
+      end;
+    1:
+      begin
+        up := IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 7)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 0)^));
+        if up <> '0-0' then
+        begin
+          BW_TekstXY(4, pozycjaY, PAnsiChar(#3 + 'Engineering Bay ' + #4 + up));
+          pozycjaY := pozycjaY + 11;
+        end;
+        up := '';
+        up := IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 8)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 1)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 9)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 2)^));
+        if up <> '0-0-0-0' then
+        begin
+          BW_TekstXY(4, pozycjaY, PAnsiChar(#3 + 'Armory ' + #4 + up));
+          pozycjaY := pozycjaY + 11;
+        end;
+        SetLength(licznikJednostek, Length(jednostkiTerranTekst));
+        for i := 0 to Length(licznikJednostek) - 1 do
+        begin
+          licznikJednostek[i] := byte(Pointer($00584DE4 + (numerZaznaczonegoGracza * 4) + (48 * jednostkiTerranNumer[i]))^);
+          if i = 5 then licznikJednostek[5] := licznikJednostek[5] // tank + siege tank
+              + byte(Pointer($00584DE4 + (numerZaznaczonegoGracza * 4) + (48 * 30))^);
+          if licznikJednostek[i] <> 0 then
+          begin
+            BW_TekstXY(4, pozycjaY, PAnsiChar(#2 + jednostkiTerranTekst[i]));
+            BW_TekstXY(79, pozycjaY, PAnsiChar(#7 + IntToAnsiStr(licznikJednostek[i])));
+            pozycjaY := pozycjaY + 11;
+          end;
+        end;
+      end;
+    2:
+      begin
+        up := IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 13)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 5)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 15)^));
+        if up <> '0-0-0' then
+        begin
+          BW_TekstXY(4, pozycjaY, PAnsiChar(#3 + 'Forge ' + #4 + up));
+          pozycjaY := pozycjaY + 11;
+        end;
+        up := '';
+        up := IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 14)^));
+        up := up + '-' + IntToAnsiStr(byte(Pointer($0058D2B0 + (numerZaznaczonegoGracza * 46) + 6)^));
+        if up <> '0-0' then
+        begin
+          BW_TekstXY(4, pozycjaY, PAnsiChar(#3 + 'Cybernetics Core ' + #4 + up));
+          pozycjaY := pozycjaY + 11;
+        end;
+        SetLength(licznikJednostek, Length(jednostkiTossTekst));
+        for i := 0 to Length(licznikJednostek) - 1 do
+        begin
+          licznikJednostek[i] := byte(Pointer($00584DE4 + (numerZaznaczonegoGracza * 4) + (48 * jednostkiTossNumer[i]))^);
+          if licznikJednostek[i] <> 0 then
+          begin
+            BW_TekstXY(4, pozycjaY, PAnsiChar(#2 + jednostkiTossTekst[i]));
+            BW_TekstXY(79, pozycjaY, PAnsiChar(#7 + IntToAnsiStr(licznikJednostek[i])));
+            pozycjaY := pozycjaY + 11;
+          end;
+        end;
+      end;
+  end;
 end;
 
 function TShittyPlugin.CzasGry(const czasGrySekundy: single): AnsiString;
@@ -324,8 +537,8 @@ var
 begin
   czescMinuty := floor(czasGrySekundy / 60);
   czescSekundy := floor(czasGrySekundy - (czescMinuty * 60));
-  if czescSekundy < 10 then Result := AnsiString(IntToStr(czescMinuty) + ':' + '0' + IntToStr(czescSekundy))
-  else Result := AnsiString(IntToStr(czescMinuty) + ':' + IntToStr(czescSekundy));
+  if czescSekundy < 10 then Result := IntToAnsiStr(czescMinuty) + ':' + '0' + IntToAnsiStr(czescSekundy)
+  else Result := IntToAnsiStr(czescMinuty) + ':' + IntToAnsiStr(czescSekundy);
 end;
 
 function TShittyPlugin.Godzina: AnsiString;
@@ -373,7 +586,30 @@ var
 begin
   Result := True;
   komenda := LowerCase(String(wprowadzonyTekst));
-  if komenda = '/tc' then
+  if komenda = '/apm' then
+  begin
+    if opcje.pAPM then opcje.pAPM := False
+    else opcje.pAPM := True;
+  end
+  else if komenda = '/debug' then
+  begin
+    if opcje.pDebug then opcje.pDebug := False
+    else opcje.pDebug := True
+  end
+  else if komenda = '/overlay' then
+  begin
+    if opcje.pGracze then
+    begin
+      opcje.pGracze := False;
+      opcje.pMapa := False;
+    end
+    else
+    begin
+      opcje.pGracze := True;
+      opcje.pMapa := True;
+    end;
+  end
+  else if komenda = '/tc' then
   begin
     if fTc then
     begin
@@ -483,11 +719,11 @@ end;
 
 function TShittyPlugin.APM(const numerGracza: integer; czasGrySekundy: single): AnsiString;
 begin
-  if czasGrySekundy < 120 then Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (czasGrySekundy)) * 60)))
+  if czasGrySekundy < 120 then Result := IntToAnsiStr(round((fLicznikAkcji[numerGracza] / (czasGrySekundy)) * 60))
   else
   begin
     if fResetujAPM then ResetujAPM(True);
-    Result := AnsiString(IntToStr(round((fLicznikAkcji[numerGracza] / (czasGrySekundy - 120)) * 60)));
+    Result := IntToAnsiStr(round((fLicznikAkcji[numerGracza] / (czasGrySekundy - 120)) * 60));
   end;
 end;
 
@@ -643,6 +879,7 @@ begin
   fTc := True;
   fTekstGra := polski;
   ShittyPlugin.InstalacjaPodpiec;
+  fOstatnioZaznaczonyGracz := 13;
 end;
 
 procedure TGlownyWatek.Execute;
@@ -667,6 +904,7 @@ begin
         ShittyPlugin.pResetujAPM := True;
         ShittyPlugin.pPoczatekGry := True;
         ShittyPlugin.pMapa := '';
+        opcje.pObs := False;
         fResetujZmienne := False;
       end;
     end;
@@ -896,10 +1134,12 @@ begin
   fMapa := True;
   fCzasGry := True;
   fGodzina := True;
-  fAPM := True;
+  fAPM := False;
   fUtwor := True;
   // fBitmapa := True;
   fDirectIP := True;
+  fDebug := False;
+  // fObs := True;
 end;
 
 function Gra;
