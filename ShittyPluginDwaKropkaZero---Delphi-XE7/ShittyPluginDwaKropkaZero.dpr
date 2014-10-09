@@ -12,7 +12,16 @@ uses
   IdGlobal,
   IdIRC,
   Windows,
-  Vcl.Graphics;
+  Vcl.Graphics,
+  Cromis.Comm.IPC in 'IPC\Cromis.Comm.IPC.pas',
+  Cromis.Streams in 'IPC\Cromis.Streams.pas',
+  Cromis.Threading in 'IPC\Cromis.Threading.pas',
+  Cromis.Unicode in 'IPC\Cromis.Unicode.pas',
+  Cromis.AnyValue in 'IPC\Cromis.AnyValue.pas',
+  Cromis.Detours in 'IPC\Cromis.Detours.pas',
+  Cromis.Comm.Custom in 'IPC\Cromis.Comm.Custom.pas',
+  Cromis.Hashing in 'IPC\Cromis.Hashing.pas',
+  Cromis.Cryptography in 'IPC\Cromis.Cryptography.pas';
 
 type
   TXYKolor = array of array of integer;
@@ -38,10 +47,7 @@ type
     fMapa: AnsiString;
     fMapaPozycjaX: integer;
     fOstatnioZaznaczonyGracz: integer;
-
-    fPomiarCzasuWykonaniaKodu5, fPomiarCzasuWykonaniaKodu12, fPomiarCzasuWykonaniaKodu16, fPomiarCzasuWykonaniaKodu26,
-      fPomiarCzasuWykonaniaKodu27: int64;
-    fCalosc, fSrednia5: extended;
+    fMiejsce: integer;
 
     procedure JmpPatch(const od, skokDo: cardinal);
     procedure InstalacjaPodpiec;
@@ -78,6 +84,7 @@ type
     property pGracze: AnsiString write fGracze;
     property pMapa: AnsiString read fMapa write fMapa;
     property pMapaPozycjaX: integer write fMapaPozycjaX;
+    property pMiejsce: integer read fMiejsce;
     constructor Create;
   end;
 
@@ -99,6 +106,8 @@ type
     fHaslo: string;
     fKanal: string;
     fBlad: boolean;
+    fLicznikOdebrane: integer;
+    fLicznikWyslane: integer;
     function Polacz: boolean;
     procedure NowaWiadomosc(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AMessage: string);
     procedure WyslijWiadomosc(const tresc: AnsiString);
@@ -107,6 +116,8 @@ type
     property pLogin: string read fLogin;
     property pWyslijWiadomosc: AnsiString write WyslijWiadomosc;
     property pBlad: boolean read fBlad;
+    property pLicznikOdebrane: integer read fLicznikOdebrane;
+    property pLicznikWyslane: integer read fLicznikWyslane;
     constructor Create(const kanal: String);
     destructor Destroy; override;
   end;
@@ -140,6 +151,10 @@ type
     fDirectIP: boolean;
     fDebug: boolean;
     fObs: boolean;
+    fAutoReplay: boolean;
+    fPasekReplaya: boolean;
+    fLimitSlotowReplay: boolean;
+
   public
     property pTwitchLogin: string read fTwitchLogin;
     property pTwitchHaslo: string read fTwitchHaslo;
@@ -153,12 +168,35 @@ type
     property pDirectIP: boolean read fDirectIP write fDirectIP;
     property pDebug: boolean read fDebug write fDebug;
     property pObs: boolean read fObs write fObs;
+    property pAutoReplay: boolean read fAutoReplay write fAutoReplay;
+    property pPasekReplaya: boolean read fPasekReplaya write fPasekReplaya;
+    property pLimitSlotowReplay: boolean read fLimitSlotowReplay write fLimitSlotowReplay;
     constructor Create;
   end;
+
   { TStale = class
     public const
 
     end; }
+  TLaczaNazwaneSerwer = class
+  private
+    fIPCSerwer: TIPCServer;
+    fLicznik: integer;
+    procedure OnExecuteRequest(const Context: ICommContext; const Request, Response: IMessageData);
+  public
+    property pLicznik: integer read fLicznik;
+    constructor Create;
+  end;
+
+  TLaczaNazwaneKlient = class
+  private
+    fIPCKlient: TIPCClient;
+    fLicznik: integer;
+    procedure SendSynchronous;
+  public
+    property pLicznik: integer read fLicznik;
+    constructor Create;
+  end;
 
 const
   polski: TTekstGra = (komenda_tc1: #4'<ShittyPlugin> ' + #7 + 'Wiadomości Twitch''a: ' + #3 + 'włączone';
@@ -179,6 +217,8 @@ var
   czatTwitcha: TCzatTwitcha;
   grafika: TGrafika;
   opcje: TOpcje;
+  laczaNazwaneSerwer: TLaczaNazwaneSerwer;
+  laczaNazwaneKlient: TLaczaNazwaneKlient;
   czestoliwosc: int64;
 function Gra: boolean; forward;
 function Powtorka: boolean; forward;
@@ -256,13 +296,13 @@ begin
     QueryPerformanceCounter(start);
     if fPoczatekGry then
     begin
+      fPoczatekGry := False;
       fMojNumerGracza := integer(Pointer($00512684)^);
       fResetujAPM := True;
-      { if Powtorka then } opcje.pObs := True;
       glownyWatek.fResetujZmienne := True;
       glownyWatek.fPoczatekGry := True;
-      fPoczatekGry := False;
       BW_Tekst(fTekstGra.wersja);
+      if Powtorka then opcje.pObs := True;
     end;
     if (fTc) and (fNowaWiadomoscTwitch) then
     begin
@@ -282,14 +322,10 @@ begin
     if opcje.pAPM then BW_TekstXY(4, 2, PAnsiChar(#4'APM: ' + APM(fMojNumerGracza, fCzasGrySekundy)));
     if opcje.pCzasGry then BW_TekstXY(306, 22, PAnsiChar(#4 + CzasGry(fCzasGrySekundy)));
     if opcje.pGodzina then BW_TekstXY(14, 284, PAnsiChar(#4 + Godzina));
-    BW_TekstXY(4, 13, PAnsiChar(#4 + fPomiarCzasuWykonaniaKodu));
-    if opcje.pObs then Obs;
+    if opcje.pObs then
+      if Powtorka or (byte(Pointer($00581E14 + (fMojNumerGracza * 4))^) < 4) then Obs;
     if opcje.pDebug then Debug;
     if opcje.pMapa then BW_TekstXY(Ceil(320 - (BW_SzerekoscTekstu(PAnsiChar(fMapa)) / 2)), 11, PAnsiChar(#4 + fMapa));
-    // grafika.Wyswietl(150, 250, grafika.fMineraly);
-    // grafika.Wyswietl(350, 250, grafika.fGaz);
-    // grafika.Wyswietl(450, 250, grafika.fTwitch);
-    // grafika.Wyswietl(100, 100, grafika.fWinamp);
     if opcje.pBitmapa then grafika.Wyswietl(0, 0, grafika.fUzytkownika);
 
     // *****************************************************
@@ -303,17 +339,6 @@ begin
     QueryPerformanceCounter(stop);
     delta := ((stop - start) / czestoliwosc) * 1000;
     fPomiarCzasuWykonaniaKodu := AnsiString(FloatToStr(delta));
-    if delta <= 6 then
-    begin
-      fPomiarCzasuWykonaniaKodu5 := fPomiarCzasuWykonaniaKodu5 + 1;
-      fCalosc := fCalosc + delta;
-      fSrednia5 := fCalosc / fPomiarCzasuWykonaniaKodu5;
-    end
-    else if delta < 12 then fPomiarCzasuWykonaniaKodu12 := fPomiarCzasuWykonaniaKodu12 + 1
-    else if delta < 16 then fPomiarCzasuWykonaniaKodu16 := fPomiarCzasuWykonaniaKodu16 + 1
-    else if delta < 26 then fPomiarCzasuWykonaniaKodu26 := fPomiarCzasuWykonaniaKodu26 + 1
-    else if delta >= 26 then fPomiarCzasuWykonaniaKodu27 := fPomiarCzasuWykonaniaKodu27 + 1;
-
   end;
 end;
 
@@ -325,13 +350,11 @@ begin
   BW_TekstXY(300, 74, PAnsiChar(#4 + 'Pozycja kursora w osi X: ' + #2 + IntToAnsiStr(integer(Pointer($006CDDC4)^))));
   BW_TekstXY(300, 85, PAnsiChar(#4 + 'Pozycja kursora w osi Y: ' + #2 + IntToAnsiStr(integer(Pointer($006CDDC8)^))));
   BW_TekstXY(300, 96, PAnsiChar(#4 + 'Czas gry [s]: ' + #2 + AnsiString(FloatToStr(fCzasGrySekundy))));
-  // BW_TekstXY(4, 13, PAnsiChar(#4+ fPomiarCzasuWykonaniaKodu));
-  BW_TekstXY(4, 24, PAnsiChar(#3 + '<=5 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu5)));
-  BW_TekstXY(4, 35, PAnsiChar(#3 + '>6 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu12)));
-  BW_TekstXY(4, 46, PAnsiChar(#3 + '>12 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu16)));
-  BW_TekstXY(4, 57, PAnsiChar(#3 + '>16 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu26)));
-  BW_TekstXY(4, 68, PAnsiChar(#3 + '>26 '#4 + IntToAnsiStr(fPomiarCzasuWykonaniaKodu27)));
-  BW_TekstXY(4, 79, PAnsiChar(#3 + 'Sre '#4 + AnsiString(FloatToStr(fSrednia5))));
+  BW_TekstXY(300, 107, PAnsiChar(#4 + fPomiarCzasuWykonaniaKodu));
+  // BW_TekstXY(300, 186, PAnsiChar(#3 + '--> ShittyPlugin: ' + #2 + IntToAnsiStr(laczaNazwaneSerwer.pLicznik)));
+  // BW_TekstXY(300, 197, PAnsiChar(#3 + '--> mca64Launcher: ' + #2 + IntToAnsiStr(laczaNazwaneKlient.pLicznik)));
+  BW_TekstXY(300, 208, PAnsiChar(#3 + 'Czat Twitcha odebrane: ' + #2 + IntToAnsiStr(czatTwitcha.pLicznikOdebrane)));
+  BW_TekstXY(300, 219, PAnsiChar(#3 + 'Czat Twitcha wyslane: ' + #2 + IntToAnsiStr(czatTwitcha.pLicznikWyslane)));
 end;
 
 procedure TShittyPlugin.Obs;
@@ -884,6 +907,8 @@ end;
 
 procedure TGlownyWatek.Execute;
 begin
+  // laczaNazwaneSerwer := TLaczaNazwaneSerwer.Create;
+  // laczaNazwaneKlient := TLaczaNazwaneKlient.Create;
   if opcje.pDirectIP then DirectIPPatch;
   grafika := TGrafika.Create;
   czatTwitcha := TCzatTwitcha.Create('');
@@ -901,11 +926,11 @@ begin
     begin
       if fResetujZmienne then
       begin
+        fResetujZmienne := False;
         ShittyPlugin.pResetujAPM := True;
         ShittyPlugin.pPoczatekGry := True;
         ShittyPlugin.pMapa := '';
         opcje.pObs := False;
-        fResetujZmienne := False;
       end;
     end;
     Sleep(100);
@@ -978,12 +1003,14 @@ begin
     temp := Copy(AMessage, 1, 80);
     ShittyPlugin.pTrescWiadomosciTwitch := AnsiString(#3 + ANicknameFrom + ': ' + #4 + temp);
     ShittyPlugin.pNowaWiadomoscTwitch := True;
+    Inc(fLicznikOdebrane);
   end;
 end;
 
 procedure TCzatTwitcha.WyslijWiadomosc(const tresc: AnsiString);
 begin
   fIdIRC.Say('#' + fLogin, String(tresc));
+  Inc(fLicznikWyslane)
 end;
 
 constructor TCzatTwitcha.Create;
@@ -1134,7 +1161,7 @@ begin
   fMapa := True;
   fCzasGry := True;
   fGodzina := True;
-  fAPM := False;
+  fAPM := True;
   fUtwor := True;
   // fBitmapa := True;
   fDirectIP := True;
@@ -1194,6 +1221,51 @@ begin
     ShittyPlugin := TShittyPlugin.Create;
     glownyWatek := TGlownyWatek.Create(False);
   end;
+end;
+
+{ TLaczaNazwaneSerwer }
+
+constructor TLaczaNazwaneSerwer.Create;
+begin
+  fIPCSerwer := TIPCServer.Create;
+  fIPCSerwer.ServerName := 'ShittyPlugin';
+  fIPCSerwer.OnExecuteRequest := OnExecuteRequest;
+  fIPCSerwer.start;
+end;
+
+procedure TLaczaNazwaneSerwer.OnExecuteRequest(const Context: ICommContext; const Request, Response: IMessageData);
+begin
+  opcje.pAPM := Request.Data.ReadBoolean('APM');
+  opcje.pGodzina := Request.Data.ReadBoolean('Godzina');
+  opcje.pCzasGry := Request.Data.ReadBoolean('CzasGry');
+  opcje.pUtwor := Request.Data.ReadBoolean('Winamp');
+  opcje.pAutoReplay := Request.Data.ReadBoolean('Autoreplay');
+  opcje.pPasekReplaya := Request.Data.ReadBoolean('UkryjPasek');
+  opcje.pLimitSlotowReplay := Request.Data.ReadBoolean('LimitSlotow');
+  opcje.pObs := Request.Data.ReadBoolean('Obs');
+  opcje.pGracze := Request.Data.ReadBoolean('Overlay');
+  opcje.pMapa := opcje.pGracze;
+  Inc(fLicznik);
+end;
+
+{ TLaczaNazwaneKlient }
+
+constructor TLaczaNazwaneKlient.Create;
+begin
+  fIPCKlient := TIPCClient.Create;
+  fIPCKlient.ServerName := 'mca64Launcher';
+  fIPCKlient.ConnectClient(cDefaultTimeout);
+end;
+
+procedure TLaczaNazwaneKlient.SendSynchronous;
+var
+  zapytanie: IIPCData;
+begin
+  zapytanie := AcquireIPCData;
+  zapytanie.ID := 'ShittyPlugin';
+  zapytanie.Data.WriteInteger('Stan', ShittyPlugin.pMiejsce);
+  fIPCKlient.ExecuteConnectedRequest(zapytanie);
+  Inc(fLicznik);
 end;
 
 begin
