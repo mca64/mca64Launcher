@@ -1,14 +1,14 @@
 SetCompressor /FINAL /SOLID LZMA
 ShowInstDetails "show"
 ShowUninstDetails "show"
-!define WERSJA "2.0.0.109"
+!define WERSJA "2.0.0.111"
 !define VERSIONMAJOR 2
 !define VERSIONMINOR 0
-;!define VERSIONBUILD 0.109
+;!define VERSIONBUILD 0.111
 !define HELPURL "mailto:mca640@gmail.com"
 !define UPDATEURL "http://mca64.com"
 !define ABOUTURL "http://mca64.com" 
-!define ROZMIAR 59446
+!define ROZMIAR 61764
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES\mca64Launcher\mca64Launcher ${WERSJA}"
 LicenseData "mca64Launcher ${WERSJA}\licencja.txt"
@@ -46,7 +46,7 @@ section "install"
 	File "mca64Launcher ${WERSJA}\AudioInfoXP.dll"
 	File "mca64Launcher ${WERSJA}\cp1250"
 	File "mca64Launcher ${WERSJA}\cyrylica"
-	File "mca64Launcher ${WERSJA}\ezhmm.dll"
+	File "mca64Launcher ${WERSJA}\UScreenCapturePatch.dll"
 	File "mca64Launcher ${WERSJA}\ffmpeg.exe"
 	File "mca64Launcher ${WERSJA}\gen_mca64launcher.dll"
 	File "mca64Launcher ${WERSJA}\GUIfixes.dll"
@@ -156,7 +156,7 @@ section "uninstall"
 	Delete "$INSTDIR\AudioInfoXP.dll"
 	Delete "$INSTDIR\cp1250"
 	Delete "$INSTDIR\cyrylica"
-	Delete "$INSTDIR\ezhmm.dll"
+	Delete "$INSTDIR\UScreenCapturePatch.dll"
 	Delete "$INSTDIR\ffmpeg.exe"
 	Delete "$INSTDIR\gen_mca64launcher.dll"
 	Delete "$INSTDIR\GUIfixes.dll"
