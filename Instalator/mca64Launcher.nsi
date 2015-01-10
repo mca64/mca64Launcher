@@ -1,14 +1,14 @@
 SetCompressor /FINAL /SOLID LZMA
 ShowInstDetails "show"
 ShowUninstDetails "show"
-!define WERSJA "2.0.0.112"
+!define WERSJA "2.0.0.113"
 !define VERSIONMAJOR 2
 !define VERSIONMINOR 0
 ;!define VERSIONBUILD 0.112
 !define HELPURL "mailto:mca640@gmail.com"
 !define UPDATEURL "http://mca64.com"
 !define ABOUTURL "http://mca64.com" 
-!define ROZMIAR 61764
+!define ROZMIAR 62918
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES\mca64Launcher\mca64Launcher ${WERSJA}"
 LicenseData "mca64Launcher ${WERSJA}\licencja.txt"
@@ -61,6 +61,8 @@ section "install"
 	File "mca64Launcher ${WERSJA}\licencja.txt"
 	File "mca64Launcher ${WERSJA}\mca64Launcher.exe"
 	File "mca64Launcher ${WERSJA}\MediaInfo.dll"
+	File "mca64Launcher ${WERSJA}\msvcp100.dll"
+	File "mca64Launcher ${WERSJA}\msvcr100.dll"	
 	File "mca64Launcher ${WERSJA}\Pomoc.rtf"
 	File "mca64Launcher ${WERSJA}\Powitanie.wav"
 	File "mca64Launcher ${WERSJA}\PrzerwanieNagrywania.exe"
@@ -171,6 +173,8 @@ section "uninstall"
 	Delete "$INSTDIR\licencja.txt"
 	Delete "$INSTDIR\mca64Launcher.exe"
 	Delete "$INSTDIR\MediaInfo.dll"
+	Delete "$INSTDIR\msvcp100.dll"
+	Delete "$INSTDIR\msvcr100.dll"	
 	Delete "$INSTDIR\Pomoc.rtf"
 	Delete "$INSTDIR\Powitanie.wav"
 	Delete "$INSTDIR\PrzerwanieNagrywania.exe"
