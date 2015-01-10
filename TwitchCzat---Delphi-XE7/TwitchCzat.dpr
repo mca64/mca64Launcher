@@ -190,7 +190,7 @@ begin
       // 'Wystąpił nieznany błąd podczas logowania do czatu Twitch''a. Prawdpodobnie konto nie jest zweryfikowane.'
     end
     else if (Pos('connected to TMI', AMessage) > 0) or (Pos('host is testserver.local', AMessage) > 0) or (Pos(':HISTORYEND', AMessage) > 0)
-    then
+      or (Pos('Your host is tmi.twitch.tv', AMessage) > 0) then
     begin
       fUdanePolaczenie := True;
     end
