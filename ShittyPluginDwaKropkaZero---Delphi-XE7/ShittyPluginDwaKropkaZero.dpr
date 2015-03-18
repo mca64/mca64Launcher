@@ -986,7 +986,7 @@ begin
     fIdIRC.IOHandler.DefStringEncoding := IndyTextEncoding_UTF8();
     Result := True;
   except
-    fIdIRC.Host := '199.9.250.229';
+    fIdIRC.Host := '192.16.64.144';
     fIdIRC.Connect;
     fIdIRC.Join('#' + fKanal);
     fIdIRC.IOHandler.DefStringEncoding := IndyTextEncoding_UTF8();
