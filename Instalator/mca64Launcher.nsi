@@ -1,10 +1,10 @@
 SetCompressor /FINAL /SOLID LZMA
 ShowInstDetails "show"
 ShowUninstDetails "show"
-!define WERSJA "2.0.0.113"
+!define WERSJA "2.0.0.115"
 !define VERSIONMAJOR 2
 !define VERSIONMINOR 0
-;!define VERSIONBUILD 0.112
+;!define VERSIONBUILD 0.115
 !define HELPURL "mailto:mca640@gmail.com"
 !define UPDATEURL "http://mca64.com"
 !define ABOUTURL "http://mca64.com" 
