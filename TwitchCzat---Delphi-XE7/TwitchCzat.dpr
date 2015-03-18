@@ -147,7 +147,7 @@ begin
       fIdIRC.OnConnected := Polaczono;
       fIdIRC.OnJoin := WejscieUzytkownika; }
     fIdIRC.UserMode := [];
-    fIdIRC.Host := '199.9.250.229';
+    fIdIRC.Host := '192.16.64.144';
     fIdIRC.Nickname := fLogin; // 'mca64';
     fIdIRC.Password := fHaslo; // 'oauth:hdbmv7oeoe2d3uero62l28t0ylwy9vg';
   finally
