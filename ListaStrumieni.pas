@@ -3,7 +3,7 @@ unit ListaStrumieni;
 interface
 
 uses
-  System.Classes, IdHTTP, IdSSLOpenSSL, System.JSON, Vcl.ComCtrls, SysUtils, StrUtils,
+  System.Classes, IdHTTP, IdSSLOpenSSL, {DBXJSON} System.JSON, Vcl.ComCtrls, SysUtils, StrUtils,
   System.DateUtils, System.TimeSpan, Vcl.ExtCtrls,
   Windows;
 // Diagnostics;
@@ -107,7 +107,8 @@ begin
   jsonObiekt := TJSONObject.ParseJSONValue(JSONv3) as TJSONObject;
   try
     streams := jsonObiekt.Get('streams').JsonValue as TJSONArray;
-    liczbaStrumieni := streams.Count;
+    liczbaStrumieni := streams.Count; // Delphi XE7
+    // liczbaStrumieni := streams.Size;
     SetLength(fLiczbaWidzow, liczbaStrumieni);
     SetLength(fDataUtworzeniaKonta, liczbaStrumieni);
     SetLength(fCzasStrumieniowania, liczbaStrumieni);
@@ -128,7 +129,8 @@ begin
     fu.TimeSeparator := ':';
     for i := 0 to liczbaStrumieni - 1 do
     begin
-      strumien := streams.Items[i] as TJSONObject;
+      strumien := streams.Items[i] as TJSONObject; // Delphi XE7
+      // strumien := streams.Get(i) as TJSONObject;
       viewers := strumien.Get('viewers').JsonValue as TJSONString;
       _id := strumien.Get('_id').JsonValue as TJSONString;
       created_atStrumien := strumien.Get('created_at').JsonValue as TJSONString;
@@ -182,9 +184,11 @@ begin
     jsonObiekt := TJSONObject.ParseJSONValue(JSONv2) as TJSONObject;
     streams := jsonObiekt.Get('streams').JsonValue as TJSONArray;
     liczbaStrumieni := streams.Count;
+    // liczbaStrumieni := streams.Size;
     for i := 0 to liczbaStrumieni - 1 do
     begin
-      strumien := streams.Items[i] as TJSONObject;
+      strumien := streams.Items[i] as TJSONObject; // Delphi XE7
+      // strumien := streams.Get(i) as TJSONObject;
       _id := strumien.Get('_id').JsonValue as TJSONString;
       for j := 0 to Length(fID) - 1 do
         if _id.Value = fID[j] then
@@ -225,7 +229,7 @@ begin
           // fProgressBar.Position := i;
           listItem := fListView.Items.Add;
           if (fNazwaKanalu[i] = 'snipealot1') or (fNazwaKanalu[i] = 'snipealot2') or (fNazwaKanalu[i] = 'snipealot3') or
-            (fNazwaKanalu[i] = 'snipealot4') or (fNazwaKanalu[i] = 'bgvrtc') then
+            (fNazwaKanalu[i] = 'snipealot4') or (fNazwaKanalu[i] = 'bgvrtc') or (fNazwaKanalu[i] = 'tempsnip1') then
           begin
             listItem.ImageIndex := SnipealotRasaGracza(fOpisKanalu[i]);
             listItem.Caption := ' ' + fOpisKanalu[i];
