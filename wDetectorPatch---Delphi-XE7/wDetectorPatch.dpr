@@ -56,8 +56,8 @@ begin
   adresBazowy := PobierzAdresBazowy(pId);
   hProces := OpenProcess(PROCESS_ALL_ACCESS, False, pId);
   try
-    ZapiszTekstDoPamieci($3F901, #7'wD '#4'3.32 '#6' mca64Launcher');
-    ZapiszTekstDoPamieci($3F230, #0); // aktywacja
+    ZapiszTekstDoPamieci($3F931, ' wD '#4'3.34 '#6' mca64Launcher');
+    ZapiszTekstDoPamieci($3F260, #0); // aktywacja AA B4 C2 20 C7 D1
     if jezyk = 0 then // polski
     begin
       { ZapiszTekstDoPamieci($3E683, ' Historia gier: ');
