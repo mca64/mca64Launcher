@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, IdHTTP, IdSSLOpenSSL, {DBXJSON} System.JSON, Vcl.ComCtrls, SysUtils, StrUtils,
   System.DateUtils, System.TimeSpan, Vcl.ExtCtrls,
-  Windows;
+  Windows, commctrl, messages;
 // Diagnostics;
 
 type
@@ -14,7 +14,7 @@ type
   TListaStrumieni = class(TThread)
   private
     fLiczbaWidzow, fDataUtworzeniaKonta, fLiczbaSledzacych, fNazwaKanalu, fDataAktualizacjiKanalu, fURL, fOpisKanalu, fLiczbaOdwiedzin,
-      fWyswietlanaNazwaKanalu, fCzasStrumieniowania, fID, fProgram: array of String;
+      fKraj, fWyswietlanaNazwaKanalu, fCzasStrumieniowania, fID, fProgram, fFPS, fRozdzialka: array of String;
     fListView: TlistView;
     fBazaDanych: TStringList;
     fProgressBar: TProgressBar;
@@ -63,8 +63,11 @@ var
   url: TJSONString;
   status: TJSONString;
   views: TJSONString;
+  language: TJSONString;
   viewers: TJSONString;
   display_name: TJSONString;
+  average_fps: TJSONString;
+  video_height: TJSONString;
   liczbaStrumieni: integer;
   i, j: integer;
   fu: TFormatSettings;
@@ -110,6 +113,8 @@ begin
     liczbaStrumieni := streams.Count; // Delphi XE7
     // liczbaStrumieni := streams.Size;
     SetLength(fLiczbaWidzow, liczbaStrumieni);
+    SetLength(fFPS, liczbaStrumieni);
+    SetLength(fRozdzialka, liczbaStrumieni);
     SetLength(fDataUtworzeniaKonta, liczbaStrumieni);
     SetLength(fCzasStrumieniowania, liczbaStrumieni);
     SetLength(fLiczbaSledzacych, liczbaStrumieni);
@@ -118,6 +123,7 @@ begin
     SetLength(fURL, liczbaStrumieni);
     SetLength(fOpisKanalu, liczbaStrumieni);
     SetLength(fLiczbaOdwiedzin, liczbaStrumieni);
+    SetLength(fKraj, liczbaStrumieni);
     SetLength(fWyswietlanaNazwaKanalu, liczbaStrumieni);
     SetLength(Form1.HintyTablica, 0);
     SetLength(Form1.HintyTablica, liczbaStrumieni);
@@ -132,6 +138,8 @@ begin
       strumien := streams.Items[i] as TJSONObject; // Delphi XE7
       // strumien := streams.Get(i) as TJSONObject;
       viewers := strumien.Get('viewers').JsonValue as TJSONString;
+      average_fps := strumien.Get('average_fps').JsonValue as TJSONString;
+      video_height := strumien.Get('video_height').JsonValue as TJSONString;
       _id := strumien.Get('_id').JsonValue as TJSONString;
       created_atStrumien := strumien.Get('created_at').JsonValue as TJSONString;
       channel := strumien.Get('channel').JsonValue as TJSONObject;
@@ -147,8 +155,11 @@ begin
         fOpisKanalu[i] := '';
       end;
       views := channel.Get('views').JsonValue as TJSONString;
+      language := channel.Get('language').JsonValue as TJSONString;
       display_name := channel.Get('display_name').JsonValue as TJSONString;
       fLiczbaWidzow[i] := viewers.Value;
+      fFPS[i] := average_fps.Value;
+      fRozdzialka[i] := video_height.Value;
       fCzasStrumieniowania[i] := created_atStrumien.Value;
       fDataUtworzeniaKonta[i] := created_atKonto.Value;
       fLiczbaSledzacych[i] := followers.Value;
@@ -156,6 +167,7 @@ begin
       fDataAktualizacjiKanalu[i] := updated_at.Value;
       fURL[i] := url.Value;
       fLiczbaOdwiedzin[i] := views.Value;
+      fKraj[i] := language.Value;
       fWyswietlanaNazwaKanalu[i] := display_name.Value;
       fID[i] := _id.Value;
       t1 := StrToDateTime(fDataAktualizacjiKanalu[i], fu);
@@ -168,16 +180,17 @@ begin
       if d > 0 then uplyneloStrumien := (Format('%dd, %s', [d, FormatDateTime('hh''h'' nn''min'' ss''s''', Frac(t2 - t3))]))
       else uplyneloStrumien := (Format('%s', [FormatDateTime('hh''h'' nn''min'' ss''s''', Frac(t2 - t3))]));
       if fJezyk = 0 then
-          Form1.HintyTablica[i] := 'Adres: ' + fURL[i] + #13#10 + 'Opis: ' + fOpisKanalu[i] + #13#10 + 'Data utworzenia konta: ' +
-          FormatDateTime('c', StrToDateTime(fDataUtworzeniaKonta[i], fu)) + #13#10 + 'Czas strumieniowania: ' +
-          FormatDateTime('c', t3 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (upłyneło ' + uplyneloStrumien + ')' + #13#10 +
-          'Czas ostatniej aktualizacji kanału: ' + FormatDateTime('c', t1 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (upłyneło ' +
-          uplyneloKonto + ')' + #13#10 + 'Liczba odwiedzin: ' + fLiczbaOdwiedzin[i] + #13#10 + 'Liczba śledzących: ' + fLiczbaSledzacych[i]
-      else Form1.HintyTablica[i] := 'Address: ' + fURL[i] + #13#10 + 'Description: ' + fOpisKanalu[i] + #13#10 + 'Account created at: ' +
-          FormatDateTime('c', StrToDateTime(fDataUtworzeniaKonta[i], fu)) + #13#10 + 'Stream uptime: ' +
-          FormatDateTime('c', t3 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (elapsed ' + uplyneloStrumien + ')' + #13#10 +
-          'Channel updated at: ' + FormatDateTime('c', t1 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (elapsed ' + uplyneloKonto + ')' +
-          #13#10 + 'Views: ' + fLiczbaOdwiedzin[i] + #13#10 + 'Followers: ' + fLiczbaSledzacych[i]
+          Form1.HintyTablica[i] := 'Adres: ' + fURL[i] + #13#10 + 'Opis: ' + fOpisKanalu[i] + #13#10 + 'Język: ' + UpperCase(fKraj[i]) +
+          #13#10 + 'Data utworzenia konta: ' + FormatDateTime('c', StrToDateTime(fDataUtworzeniaKonta[i], fu)) + #13#10 +
+          'Czas strumieniowania: ' + FormatDateTime('c', t3 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (upłyneło ' + uplyneloStrumien +
+          ')' + #13#10 + 'Czas ostatniej aktualizacji kanału: ' + FormatDateTime('c', t1 + TTimeZone.Local.GetUtcOffset(Now, true)) +
+          ' (upłyneło ' + uplyneloKonto + ')' + #13#10 + 'Liczba odwiedzin: ' + fLiczbaOdwiedzin[i] + #13#10 + 'Liczba śledzących: ' +
+          fLiczbaSledzacych[i]
+      else Form1.HintyTablica[i] := 'Address: ' + fURL[i] + #13#10 + 'Description: ' + fOpisKanalu[i] + #13#10 + 'Language: ' +
+          UpperCase(fKraj[i]) + #13#10 + 'Account created at: ' + FormatDateTime('c', StrToDateTime(fDataUtworzeniaKonta[i], fu)) + #13#10 +
+          'Stream uptime: ' + FormatDateTime('c', t3 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (elapsed ' + uplyneloStrumien + ')' +
+          #13#10 + 'Channel updated at: ' + FormatDateTime('c', t1 + TTimeZone.Local.GetUtcOffset(Now, true)) + ' (elapsed ' + uplyneloKonto
+          + ')' + #13#10 + 'Views: ' + fLiczbaOdwiedzin[i] + #13#10 + 'Followers: ' + fLiczbaSledzacych[i]
     end;
     // Twitch API V2 (program do strumieniowania)
     jsonObiekt.Free;
@@ -217,7 +230,14 @@ begin
       listaKanalowPrzed, listaKanalowPo: array of string;
       nowyStrumien: boolean;
       tekstChmurka: string;
+      pozycja: integer;
+      sInfo: TScrollInfo;
     begin
+      sInfo.cbSize := SizeOf(sInfo);
+      sInfo.fMask := SIF_ALL;
+      GetScrollInfo(fListView.Handle, SB_VERT, sInfo);
+      pozycja := sInfo.nPos;
+      // Form1.Caption := inttostr(pozycja);
       fListView.Items.BeginUpdate;
       try
         SetLength(listaKanalowPrzed, fListView.Items.Count);
@@ -247,20 +267,26 @@ begin
             listItem.Caption := ' ' + temp[0];
           end;
           listItem.SubItems.Add(fLiczbaWidzow[i]);
-          listItem.SubItems.Add('');
+          try
+            fFPS[i] := FloatToStrF(StrToFloat(fFPS[i]), ffNumber, 100, 2);
+          except
+            fFPS[i] := '-.-'
+          end;
+          listItem.SubItems.Add(fRozdzialka[i] + 'p @' + fFPS[i]);
           if afreeca then listItem.SubItemImages[1] := 8
           else if fProgram[i] = 'unknown_rtmp' then listItem.SubItemImages[1] := 9
           else if fProgram[i] = 'obs' then listItem.SubItemImages[1] := 7
           else if fProgram[i] = 'xsplit' then listItem.SubItemImages[1] := 6
           else if fProgram[i] = 'fme' then listItem.SubItemImages[1] := 5
           else listItem.SubItemImages[1] := 4;
-          listItem.SubItems.Add(IntToStr(i + 1));
+          listItem.SubItems.Add(inttostr(i + 1));
           listItem.SubItems.Add(fNazwaKanalu[i]);
           listaKanalowPo[i] := fListView.Items[i].Caption;
         end;
         fListView.Visible := true;
       finally
         fListView.Items.EndUpdate;
+        for i := 1 to pozycja do SendMessage(fListView.Handle, WM_VSCROLL, SB_LINEDOWN, 0);
       end;
       if Form1.CheckBox68.checked then // Pop Your Balloon
         try
@@ -326,14 +352,14 @@ begin
   gracz := LowerCase(bonjwa);
   if (gracz = 'larva') or (gracz = 'killer') or (gracz = 'hero') or (gracz = 'zergman') or (gracz = 'terror') or (gracz = 'beast') or
     (gracz = 's2') or (gracz = 'zero') or (gracz = 'starcue') or (gracz = 'modesty') or (gracz = 'kwanro') or (gracz = 'cola') or
-    (gracz = 'hyuk') or (gracz = 'jat.tv') or (gracz = 'saber') then Result := 0
+    (gracz = 'hyuk') or (gracz = 'jat.tv') or (gracz = 'saber') or (gracz = 'effort') then Result := 0
   else if (gracz = 'hiya') or (gracz = 'mong') or (gracz = 'ssak') or (gracz = 'sea') or (gracz = 'ample') or (gracz = 'mind') or
     (gracz = 'shinee') or (gracz = 'light') or (gracz = 'dove') or (gracz = 'kkong') or (gracz = 'piano') or (gracz = 'midas') or
-    (gracz = 'firebathero') or (gracz = 'icarus') or (gracz = 'boxer') then Result := 1
+    (gracz = 'firebathero') or (gracz = 'icarus') or (gracz = 'boxer') or (gracz = 'last') then Result := 1
   else if (gracz = 'bisu') or (gracz = 'shuttle') or (gracz = 'pusan') or (gracz = 'pure') or (gracz = 'jaehoon') or (gracz = 'hint') or
     (gracz = 'eagle') or (gracz = 'mini') or (gracz = 'britney') or (gracz = 'lazy') or (gracz = 'brave') or (gracz = 'tyson') or
     (gracz = 'sky') or (gracz = 'zeus') or (gracz = 'leto') or (gracz = 'air') or (gracz = 'jangbi') or (gracz = 'tamoo') or
-    (gracz = 'snow') or (gracz = 'free') or (gracz = 'hwan') or (gracz = 'yongsu') then Result := 2
+    (gracz = 'snow') or (gracz = 'free') or (gracz = 'hwan') or (gracz = 'yongsu') or (gracz = 'guemchi') then Result := 2
   else Result := 4
 end;
 
