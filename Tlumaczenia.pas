@@ -300,35 +300,35 @@ const
 
   /// /////////////////////////////   FRENCH
   francuski: TJezyk = (AV2: 'Temps:'; AV3: 'Taille:'; AV4: 'Images perdues:'; AV5: 'Bitrate:'; AV6: 'FPS:'; AV7: 'Upload:';
-    glosnosc: 'Contrôle du Volume (CTRL + HAUT/BAS)'; f1: 'F1 Hors Fonction'; pause: 'PAUSE for pause/resume game';
-    altshift: 'ALT + SHIFT Hors fonction'; zagubione: 'Fix "lost" keyboard input'; zapora: 'Exception du pare-feu Windows';
-    znaki: 'Change the character set'; skrin: 'Capture d''écran (CTRL+ALT+P)'; sprawdzLatency: 'Controle de la latence';
-    daneKonta: 'Paramètre du compte:'; ustawieniaCzatu: 'Paramètre du Chat:'; ustawieniaStrumnieniowania: 'Paramètre de diffusion:';
-    ustawieniaKonta: 'Paramètre du canal:'; ustawGre: 'Set game: "StarCraft: Brood War"'; ustawOpis: 'Selectionner la description:';
+    glosnosc: 'Contrôle du Volume (CTRL + HAUT/BAS)'; f1: 'Désactiver F1'; pause: 'Pause/reprise du jeu';
+    altshift: 'Désactiver ALT + SHIFT'; zagubione: 'Fix "lost" keyboard input'; zapora: 'Ajouter exception dans le pare-feu Windows';
+    znaki: 'Change the character set'; skrin: 'Capture d''écran (CTRL+ALT+P)'; sprawdzLatency: 'Contrôle de la latence';
+    daneKonta: 'Paramètre du compte:'; ustawieniaCzatu: 'Paramètre du chat:'; ustawieniaStrumnieniowania: 'Paramètre de diffusion:';
+    ustawieniaKonta: 'Paramètre du canal:'; ustawGre: 'Set game: "StarCraft: Brood War"'; ustawOpis: 'Sélectionner la description:';
     listaWidzow: 'Spectateurs'; Pogrubienie: 'Gras'; bnCzat: 'Discussion Battle.net';
-    sprawdzanieAktualizacji: 'Vérification des mises à jour'; nagrywajLokalnie: 'Enregistrement local'; caps: 'CAPS LOCK hors fonction';
+    sprawdzanieAktualizacji: 'Vérification des mises à jour'; nagrywajLokalnie: 'Enregistrement local'; caps: 'Désactiver CAPS LOCK';
     jump: 'Winamp: Aller au fichier'; wyswietl: 'Affichage en jeu:'; funkcje: 'Fonctions:'; kbHook: 'Keyboard hook';
     listStrumieni: 'Mettre à jour la liste des diffusions';
     guiUniemozliwi: 'GUIfixes vous empêche de rejoindre les serveurs officiel Battle.net'; listaGraczy: 'Joueurs';
-    jKoreanski: 'Assistance pour le koréen en partie'; track: 'Information de la chanson'; au1: 'OAuth devrais être généré ici:';
+    jKoreanski: 'Assistance pour la langue coréenne en partie'; track: 'Infos sur la chanson'; au1: 'OAuth devrais être généré ici:';
     au2: 'Ceci devrait ressembler à cela: '; au3: 'next copy paste all text.'; sekundy: 'secondes';
     dyskTwardy: 'Enregistrer sur le disque dur'; wysylanieWToku: 'Diffuser sur Twitch...'; // l'utilisation
     zakonczoneNiepo: 'La diffusion sur Twitch a échouée'; wybierzAkcje: 'Choisir une fonction pour l''utilisation';
     uprawienia: 'Promouvoir comme modérateur'; tymczasowyBan: 'Bannir temporairement'; zbanuj: 'Ban permanent';
-    cofUpr: 'Destituer de modérateur'; listaOP: 'Modérateurs'; odbanuj: 'Enlever le ban';
+    cofUpr: 'Destituer un modérateur'; listaOP: 'Modérateurs'; odbanuj: 'Enlever le ban';
     pobierzKlucz: 'Télécharger la clé de stream et sauvegarder les paramètres'; priorytet: 'StarCraft en prioritée haute';
     trwaPobieranieKlucza: 'Téléchargement de la clé de stream...'; opuscil: 'Parties:'; dolaczyl: 'Rejoindre:'; polaczono: 'Connecter avec';
     rozlaczono: 'Déconnecter de'; fishiInne: 'Fish et autres'; naprawKolory: 'Correction des couleurs';
     emulacjaDD: 'Émulation ''DirectDraw'''; upnp: 'Activer l''UPnP'; bramki: 'Ajout de serveurs'; wmode: 'Lancer StarCraft en mode fenêtré';
-    start: 'Démarrer'; powiadomienie: 'Notification sonores'; jezyk: 'Langue:'; pokazLog: 'Voir le journal';
+    start: 'Démarrer'; powiadomienie: 'Notifications sonores'; jezyk: 'Langue:'; pokazLog: 'Voir le journal';
     sprawdzTrase: 'Retracer le route:'; pokazKraj: 'Indiquer le pays'; hosty: 'Résoudre le nom d''hôte'; pokazKlucz: 'Voir la clé CD';
     startCam: 'Start'; // 'Commencer:';
     stopCam: 'Stop:'; // 'Arrêter:';
-    lobby: 'Hall:'; lobbyPrzed: 'Hall de partie:'; wGrze: 'En jeu:'; odtwarzajDz: 'Jouer les son:'; kanal: 'Chaîne:'; polacz: 'Connecter';
+    lobby: 'Salon:'; lobbyPrzed: 'Salon de jeu:'; wGrze: 'En jeu:'; odtwarzajDz: 'Jouer les sons:'; kanal: 'Chaîne:'; polacz: 'Connecter';
     polaczony: 'Connecté'; rozlacz: 'Déconnecter'; konfiguruj: 'Configure'; liczbaWidzow: 'Nombre de spectateurs:';
-    pokazCzas: 'Afficher l''heure'; pokazWeWy: 'Show joins/parts'; wyslij: 'Envoyer'; rozne: 'Divers'; nagrywanie: 'Record';
+    pokazCzas: 'Afficher l''heure'; pokazWeWy: 'Afficher les connexions/déconnexions'; wyslij: 'Envoyer'; rozne: 'Divers'; nagrywanie: 'Record';
     // 'Enregistrement';
-    dotacje: 'Donate'; oProgramie: 'About'; uVideo: 'Système vidéo:'; uAudio: 'Système audio:'; kodekVideo: 'Compression de vidéo:';
+    dotacje: 'Donate'; oProgramie: 'A propos'; uVideo: 'Système vidéo:'; uAudio: 'Système audio:'; kodekVideo: 'Compression de vidéo:';
     kodekAudio: 'Compression de l’audio:'; podglad: 'Preview'; nagrywaj: 'Enregistrement'; tLogin: 'Identifiant:'; tHaslo: 'Mot de passe:';
     domyslnyKanal: 'Canal par default:'; zapiszCzat: 'Sauvegarde du chat'; autoPolaczenie: 'Connexion automatique au démarrage';
     zapisz: 'Sauvegarde'; maxBitrate: 'Débit binaire maximal:'; rodzajPrzeplywnosci: 'Méthode d''encodage:'; stala: 'Constant (DBC)';
@@ -336,17 +336,17 @@ const
     wartosc: 'Valeur:'; predkosc: 'Changer la vitesse de la souris'; overlay: 'Afficher le calque design'; czasGry: 'Temps de jeu';
     czas: 'Heure'; trybObs: 'Mode observateur'; czatTwitcha: 'Accéder au chat Twitch'; apm: 'APM'; winamp: 'Winamp / AIMP';
     autoreplay: 'Replay automatique'; ukryjPasek: 'Cacher la barre de progression du replay'; // Cacher la barre de progression du replay
-    usunLimit: 'Remove replay slot limit'; wyswietlZdjecie: 'Afficher l''image'; autor: 'Auteur:'; kontakt: 'Contact:';
+    usunLimit: 'Enlever la limite des slots lors du replay'; wyswietlZdjecie: 'Afficher l''image'; autor: 'Auteur:'; kontakt: 'Contact:';
     dataBuildu: 'Temps:'; wersja: 'Version:'; podziekowania: 'Special thanks for help in creation of this program go to:';
-    wykorzystano: 'Ce programme utilise les fichier-tiers suivants:'; logowanie: 'Connection automatique'; dodaj: 'Ajouter'; usun: 'Delete';
-    zapisujCzatBn: 'Save Battle.net chat'; czcionka: 'Change font (Battle.net)'; czcionkaDomyslna: 'Restore font';
-    otworzKatalog: 'Ouvrir le fichier de récéption des enregistrements'; aero: 'Windows Aero'; trwaNagrywanie: 'Enregistrement:';
+    wykorzystano: 'Ce programme utilise les fichier-tiers suivants:'; logowanie: 'Connection automatique'; dodaj: 'Ajouter'; usun: 'Supprimer';
+    zapisujCzatBn: 'Save Battle.net chat'; czcionka: 'Changer la police (Battle.net)'; czcionkaDomyslna: 'Rétablir caca la police';
+    otworzKatalog: 'Ouvrir le fichier de destination des enregistrements'; aero: 'Windows Aero'; trwaNagrywanie: 'Enregistrement:';
     wiadomosci: 'Messages'; jednAt: 'Dégâts des unitées:'; jednPrzy: 'Unitées recevant des dégâts:'; rasa: 'Race:'; jednostka: 'Unitée:';
-    upAtak: 'Amélioration d''attaque:'; upArmory: 'Armor upgrade:'; oblicz: 'Calcul'; obrazenia: 'Dégâts:'; kalkulator: 'Calculateur';
-    aktywuj: 'Activer'; blokada: 'Windows keys hors fonction'; wsparciePolski: 'Assistance pour la langue Polonaise en jeu';
+    upAtak: 'Amélioration d''attaque:'; upArmory: 'Upgrade d''armure:'; oblicz: 'Calcul'; obrazenia: 'Dégâts:'; kalkulator: 'Calculateur';
+    aktywuj: 'Activer'; blokada: 'Désactiver les touches Windows'; wsparciePolski: 'Assistance pour la langue Polonaise en jeu';
     update: 'Une nouvelle version est disponible'; update2: 'Voulez vous ouvrir la page de téléchargement ?'; schowek: 'Minimisez';
     dialog_uruchomiona: 'L''application est déjà activée!'; lossless: '"Compression vidéo sans perte"'; streamin: 'Diffusion sur Twitch';
-    opoznienie: 'Delai:';);
+    opoznienie: 'Délai:';);
 
   /// /////////////////////////////   HUNGARIAN
   wegierski: TJezyk = ( // Breach
