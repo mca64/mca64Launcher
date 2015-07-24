@@ -1,4 +1,4 @@
-Aktualna wersja: 2.0.0.118 (24 VII 2015)
+Aktualna wersja: 2.0.0.119 (24 VII 2015)
 
 .exe/.rar/.zip: http://mca64.com
 
