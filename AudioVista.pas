@@ -94,24 +94,21 @@ type
 
   IAudioClient = interface(IUnknown)
     ['{1CB9AD4C-DBFA-4c32-B178-C2F568A703B2}']
-    function Initialize(ShareMode: AUDCLNT_SHAREMODE; StreamFlags: DWORD;
-      hmsBufferDuration: REFERENCE_TIME; hmsPeriodicity: REFERENCE_TIME;
-      pFormat: PWAVEFORMATEXTENSIBLE; AudioSessionGuid: pGuid)
+    function Initialize(const shareMode: AUDCLNT_SHAREMODE; const streamFlags: DWORD;
+      const hnsBufferDuration, hnsPeriodicity: REFERENCE_TIME; const pFormat: PWAVEFORMATEXTENSIBLE; const audioSessionGuid: pGuid)
       : HRESULT; stdcall;
-    function GetBufferSize(out NumBufferFrames: UINT32): HRESULT; stdcall;
-    function GetCurrentPadding(out NumPaddingFrames: UINT32): HRESULT; stdcall;
-    function GetStreamLatency(out hmsLatency: REFERENCE_TIME): HRESULT; stdcall;
-    function IsFormatSupported(ShareMode: DWORD; pFormat: PWAVEFORMATEXTENSIBLE;
+    function GetBufferSize(out numBufferFrames: UINT32): HRESULT; stdcall;
+    function GetCurrentPadding(out numPaddingFrames: UINT32): HRESULT; stdcall;
+    function GetStreamLatency(out hnsLatency: REFERENCE_TIME): HRESULT; stdcall;
+    function IsFormatSupported(const shareMode: AUDCLNT_SHAREMODE; const pFormat: PWAVEFORMATEXTENSIBLE;
       out pClosestMatch: PWAVEFORMATEXTENSIBLE): HRESULT; stdcall;
     function GetMixFormat(out pFormat: PWAVEFORMATEXTENSIBLE): HRESULT; stdcall;
-    function GetDevicePeriod(out hmsDefaultDevicePeriod, hmsMinimumDevicePeriod
-      : REFERENCE_TIME): HRESULT; stdcall;
+    function GetDevicePeriod(out hnsDefaultDevicePeriod, hnsMinimumDevicePeriod: REFERENCE_TIME): HRESULT; stdcall;
+    function GetService(const iid: TGUID; out ppInterface: IUnknown): HRESULT; stdcall;
+    function Reset: HRESULT; stdcall;
+    function SetEventHandle(const eventHandle: HWND): HRESULT; stdcall;
     function Start: HRESULT; stdcall;
     function Stop: HRESULT; stdcall;
-    function Reset: HRESULT; stdcall;
-    function SetEventHandle(eventHandle: HWND): HRESULT; stdcall;
-    function GetService(const iid: TGUID; out ppInterface: IUnknown)
-      : HRESULT; stdcall;
   end;
 
 function DomyslneUrzadzenie(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
