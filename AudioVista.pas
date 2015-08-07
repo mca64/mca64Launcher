@@ -104,11 +104,11 @@ type
       out pClosestMatch: PWAVEFORMATEXTENSIBLE): HRESULT; stdcall;
     function GetMixFormat(out pFormat: PWAVEFORMATEXTENSIBLE): HRESULT; stdcall;
     function GetDevicePeriod(out hnsDefaultDevicePeriod, hnsMinimumDevicePeriod: REFERENCE_TIME): HRESULT; stdcall;
-    function GetService(const iid: TGUID; out ppInterface: IUnknown): HRESULT; stdcall;
-    function Reset: HRESULT; stdcall;
-    function SetEventHandle(const eventHandle: HWND): HRESULT; stdcall;
     function Start: HRESULT; stdcall;
     function Stop: HRESULT; stdcall;
+    function Reset: HRESULT; stdcall;
+    function SetEventHandle(const eventHandle: HWND): HRESULT; stdcall;
+    function GetService(const iid: TGUID; out ppInterface: IUnknown): HRESULT; stdcall;
   end;
 
 function DomyslneUrzadzenie(const odtwarzanieCzyNagrywanie: EDATAFLOW): IMMDevice;
